@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>548</width>
+    <height>352</height>
+   </rect>
+  </property>
+  <property name="cursor">
+   <cursorShape>PointingHandCursor</cursorShape>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QTextEdit {
+      /* 设置背景颜色为灰色 */
+    border: 2px solid black;    /* 设置边框为2像素宽，黑色 */
+    border-radius: 5px;         /* 可选：设置圆角半径为5像素 */
+}</string>
+  </property>
+  <widget class="QFrame" name="frame">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>10</y>
+     <width>481</width>
+     <height>301</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QLineEdit {
+    border: none; /* 移除边框 */
+/* 设置文字颜色为灰色 */
+	 background-color: transparent;
+	border-bottom:1px solid #717072;
+
+}	
+            QLabel {
+                font-size: 8pt;
+            }
+            QPushButton {
+                font-size: 7pt;
+				  border-color:#EBEEF5;
+            }
+            QLineEdit {
+                font-size: 8pt;
+            }
+			 QCheckBox{
+					font-size: 8pt;
+}
+
+</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>20</y>
+      <width>51</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QLabel{font-size:12px;}</string>
+    </property>
+    <property name="text">
+     <string>策略名稱</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>50</y>
+      <width>31</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QLabel{font-size:12px;}</string>
+    </property>
+    <property name="text">
+     <string>描述</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>237</y>
+      <width>31</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QLabel{font-size:12px;}</string>
+    </property>
+    <property name="text">
+     <string>公開</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_save">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>240</y>
+      <width>121</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{font-size:14px; border: 1px solid black;  }</string>
+    </property>
+    <property name="text">
+     <string>Save</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>12</width>
+      <height>12</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="st_code">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>120</y>
+      <width>401</width>
+      <height>111</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_15">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>99</y>
+      <width>71</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QLabel{font-size:12px;}</string>
+    </property>
+    <property name="text">
+     <string>程式碼</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="st_name">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>21</y>
+      <width>331</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QTextEdit QScrollBar:vertical, QTextEdit QScrollBar:horizontal {
+    width: 0px;  /* 将滚动条的宽度/高度设置为 0 */
+    height: 0px;
+    background: transparent;  /* 可选：将背景设置为透明 */
+}</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="st_description">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>70</y>
+      <width>401</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QTextEdit QScrollBar:vertical, QTextEdit QScrollBar:horizontal {
+    width: 0px;  /* 将滚动条的宽度/高度设置为 0 */
+    height: 0px;
+    background: transparent;  /* 可选：将背景设置为透明 */
+}</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="public_true">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>240</y>
+      <width>31</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QRadioButton{font-size:9px;}</string>
+    </property>
+    <property name="text">
+     <string>是</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="public_false">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>240</y>
+      <width>31</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>否</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_close">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>0</y>
+      <width>20</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{
+border:none;
+
+}</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>close.png</normaloff>close.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>10</width>
+      <height>10</height>
+     </size>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

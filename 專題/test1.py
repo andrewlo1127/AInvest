@@ -124,46 +124,102 @@ def test1_main(data, member_id,state):
     end_date = data[3]
     money = data[5]
     commimssion = data[6]
-    df = yf.download(ticker, start=start_date, end=end_date)
-
-    # 找出檔案名稱
-    if state ==0:
-        member_id = 5
+    if (isinstance(ticker, list)):
+        reslt = []
         file_name = get_file_name(connection, member_id, data[1])
         module = load_module(file_name)
+        for tick in ticker:
+            df = yf.download(tick, start=start_date, end=end_date)
+            df = module.calculate(df)
+            bt = Backtest(df.dropna(), module.strategy, cash=int(money), commission=float(commimssion))
+            try:
+                rslt = bt.run()
+            except ValueError:
+                rslt = {
+                        'Start': 'NA',
+                        'End': 'NA',
+                        '# Trades': 'NA',
+                        'Win Rate [%]': 'NA',
+                        'Equity Final [$]': 'NA',
+                        'Return [%]': 'NA',
+                        'Buy & Hold Return [%]': 'NA',
+                        'Sharpe Ratio': 'NA',
+                        'Sortino Ratio': 'NA',
+                        'Calmar Ratio': 'NA',
+                        'Max. Drawdown [%]': 'NA',
+                        'Avg. Drawdown [%]': 'NA',
+                        'Max. Drawdown Duration': 'NA',
+                        'Avg. Drawdown Duration': 'NA',
+                        'Profit Factor': 'NA',
+                        'Expectancy [%]': 'NA',
+                        'SQN': 'NA'
+                       }
+                continue
+            except Exception:
+                rslt = {
+                        'Start': 'NA',
+                        'End': 'NA',
+                        '# Trades': 'NA',
+                        'Win Rate [%]': 'NA',
+                        'Equity Final [$]': 'NA',
+                        'Return [%]': 'NA',
+                        'Buy & Hold Return [%]': 'NA',
+                        'Sharpe Ratio': 'NA',
+                        'Sortino Ratio': 'NA',
+                        'Calmar Ratio': 'NA',
+                        'Max. Drawdown [%]': 'NA',
+                        'Avg. Drawdown [%]': 'NA',
+                        'Max. Drawdown Duration': 'NA',
+                        'Avg. Drawdown Duration': 'NA',
+                        'Profit Factor': 'NA',
+                        'Expectancy [%]': 'NA',
+                        'SQN': 'NA'
+                       }
+                continue
+            print(rslt)
+            reslt.append(rslt)
+            # 返回只包含所需字段的 DataFrame
+        return reslt
     else:
-        file_name = get_file_name(connection, member_id, data[1])
-        module = load_module(file_name)
-    print(file_name)
-    # 計算 KD
-    df = module.calculate(df)
+        df = yf.download(ticker, start=start_date, end=end_date)
+        # 找出檔案名稱
+        if state ==0:
+            member_id = 5
+            file_name = get_file_name(connection, member_id, data[1])
+            module = load_module(file_name)
+        else:
+            file_name = get_file_name(connection, member_id, data[1])
+            module = load_module(file_name)
+        print(file_name)
+        # 計算 KD
+        df = module.calculate(df)
 
-    # 抓取策略名稱
-    name = module.name()  # 調用實例的 name() 方法
-    print("name:", name)
+        # 抓取策略名稱
+        name = module.name()  # 調用實例的 name() 方法
+        print("name:", name)
 
-    # 運行回測
-    bt = Backtest(df.dropna(), module.strategy, cash=int(money), commission=float(commimssion))
-    rslt = bt.run()
-    print(rslt)
-    print("\n", rslt["_trades"])
+        # 運行回測
+        bt = Backtest(df.dropna(), module.strategy, cash=int(money), commission=float(commimssion))
+        rslt = bt.run()
+        print(rslt)
+        print("\n", rslt["_trades"])
 
-    rslt["Return"] = 0
-    for index, trade in rslt['_trades'].iterrows():
-        rslt["Return"] += float(trade['PnL'])
-    # html_file = f"Strategy.html"
-    # bt.plot(filename=html_file, open_browser=False)
-    bt.plot(open_browser=False)
+        rslt["Return"] = 0
+        for index, trade in rslt['_trades'].iterrows():
+            rslt["Return"] += float(trade['PnL'])
+        # html_file = f"Strategy.html"
+        # bt.plot(filename=html_file, open_browser=False)
+        bt.plot(open_browser=False)
 
-    code_id = find_code_id(name, rslt, connection)
-    insert_rslt_to_db(name, rslt, code_id, ticker, connection,member_id)
-    th_id = find_th_id(connection)
-    insert_trades_to_db(rslt['_trades'], th_id, connection)
+        code_id = find_code_id(name, rslt, connection)
+        insert_rslt_to_db(name, rslt, code_id, ticker, connection,member_id)
+        th_id = find_th_id(connection)
+        insert_trades_to_db(rslt['_trades'], th_id, connection)
 
-    connection.close()
-    print(data[0])
-    # 返回只包含所需字段的 DataFrame
-    return rslt, rslt['_trades'][['EntryTime', 'ExitTime', 'EntryPrice', 'ExitPrice', 'Size', 'PnL', 'ReturnPct']]
+        connection.close()
+        print(data[0])
+        # 返回只包含所需字段的 DataFrame
+        return rslt, rslt['_trades'][['EntryTime', 'ExitTime', 'EntryPrice', 'ExitPrice', 'Size', 'PnL', 'ReturnPct']]
 
 if __name__ == '__main__':
     test1_main()

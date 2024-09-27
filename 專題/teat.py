@@ -11,7 +11,10 @@ from chatbot_window import ChatbotWindow
 import yfinance as yf
 import hashlib, os
 import mail
-
+import requests
+from lxml import html
+import urllib.request
+from lxml import etree
 QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
 
 
@@ -413,10 +416,6 @@ class LoginWindow(QWidget):
             self.password.setEchoMode(QLineEdit.Password)
             self.toggle_button.setIcon(QIcon('./圖片/hide.png'))
 
-
-
-
-
     def handle_login(self):
         username = self.username.text()
         password = self.password.text()
@@ -737,14 +736,15 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.tableWidget_mylist_2.setGeometry(0,0 , window_width/(962/921), window_height/(525/451))
         self.table_widget.setGeometry(window_width/(962/710),window_height/(525/40) , window_width/(962/256), window_height/(525/281))
         self.tabWidget.setGeometry(0,window_height/(525/50) , window_width/(962/931), window_height/(525/441))
-        self.widget_edit_st.setGeometry(0,window_height/(525/260) , window_width/(962/911), window_height/(525/171))
+        self.widget_edit_st.setGeometry(0,window_height/(525/200) , window_width/(962/911), window_height/(525/171))
         self.comboBox.setGeometry(window_width/(962/135),window_height/(525/90) , window_width/(962/125), window_height/(525/22))
         self.lineEdit_2.setGeometry(window_width/(962/135),window_height/(525/55) , window_width/(962/125), window_height/(525/22))
         self.lineEdit_3.setGeometry(window_width/(962/135),window_height/(525/125) , window_width/(962/125), window_height/(525/22))
         self.lineEdit_4.setGeometry(window_width/(962/135),window_height/(525/160) , window_width/(962/125), window_height/(525/22))
         self.dateEdit.setGeometry(window_width/(962/520),window_height/(525/55) , window_width/(962/125), window_height/(525/22))
         self.dateEdit_2.setGeometry(window_width/(962/520),window_height/(525/100) , window_width/(962/125), window_height/(525/22))
-        self.pushButton_9.setGeometry(window_width/(962/680),window_height/(525/92) , window_width/(962/90), window_height/(525/30))
+        self.checkBox.setGeometry(window_width/(962/400),window_height/(525/160) , window_width/(962/131), window_height/(525/21))
+        self.pushButton_9.setGeometry(window_width/(962/680),window_height/(525/160) , window_width/(962/90), window_height/(525/30))
         self.pushButton_9_font_size = int(window_height/(525/9))
         self.new_pushButton_9_font_size = int(window_height/(525/12))
         self.pushButton_9.setStyleSheet(f"""
@@ -776,6 +776,8 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.label_6.setGeometry(window_width/(962/20),window_height/(525/10) , window_width/(962/81), window_height/(525/21))
         self.label_8.setGeometry(window_width/(962/30),window_height/(525/125) , window_width/(962/91), window_height/(525/21))
         self.label_9.setGeometry(window_width/(962/30),window_height/(525/160) , window_width/(962/91), window_height/(525/21))
+        self.label_10.setGeometry(window_width/(962/390),window_height/(525/125) , window_width/(962/81), window_height/(525/21))
+        self.label_11.setGeometry(window_width/(962/400),window_height/(525/180) , window_width/(962/261), window_height/(525/21))
         self.small_label_font_size = int(window_height/(525/12))
         self.big_label_font_size = int(window_height/(525/14))
         self.pushButton_8_font_size = int(window_height/(525/12))
@@ -828,6 +830,18 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.label_9.setStyleSheet(f"""
             font-size: {self.small_label_font_size}px;
         """)
+        self.label_10.setStyleSheet(f"""
+            font-size: {self.big_label_font_size}px;
+            font-weight: bold;
+        """)
+        self.label_11.setStyleSheet(f"""
+            font-size: {self.ex_small_label_font_size}px;
+            font-weight: bold;
+            color: red;
+        """)
+        self.checkBox.setStyleSheet(f"""
+            font-size: {self.small_label_font_size}px;
+        """)
         self.tableWidget.setColumnWidth(0, self.window_width/(962/130))
         self.tableWidget.setColumnWidth(1, self.window_width/(962/130))
         self.tableWidget.setColumnWidth(2, self.window_width/(962/80))
@@ -836,14 +850,25 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.tableWidget.setColumnWidth(5, self.window_width/(962/80))
         self.tableWidget.setColumnWidth(6, self.window_width/(962/80))
 
-        self.tableWidget2.setColumnWidth(0, self.window_width/(962/80))
-        self.tableWidget2.setColumnWidth(1, self.window_width/(962/80))
-        self.tableWidget2.setColumnWidth(2, self.window_width/(962/80))
-        self.tableWidget2.setColumnWidth(3, self.window_width/(962/80))
-        self.tableWidget2.setColumnWidth(4, self.window_width/(962/130))
-        self.tableWidget2.setColumnWidth(5, self.window_width/(962/130))
-        self.tableWidget2.setColumnWidth(6, self.window_width/(962/80))
-        self.tableWidget2.setColumnWidth(7, self.window_width/(962/130))
+        self.tableWidget_2.setColumnWidth(0, self.window_width/(962/80))
+        self.tableWidget_2.setColumnWidth(1, self.window_width/(962/80))
+        self.tableWidget_2.setColumnWidth(2, self.window_width/(962/80))
+        self.tableWidget_2.setColumnWidth(3, self.window_width/(962/80))
+        self.tableWidget_2.setColumnWidth(4, self.window_width/(962/130))
+        self.tableWidget_2.setColumnWidth(5, self.window_width/(962/130))
+        self.tableWidget_2.setColumnWidth(6, self.window_width/(962/80))
+        self.tableWidget_2.setColumnWidth(7, self.window_width/(962/130))
+
+        self.tableWidget_3.setColumnWidth(0, self.window_width/(962/80))
+        self.tableWidget_3.setColumnWidth(1, self.window_width/(962/80))
+        self.tableWidget_3.setColumnWidth(2, self.window_width/(962/80))
+        self.tableWidget_3.setColumnWidth(3, self.window_width/(962/80))
+        self.tableWidget_3.setColumnWidth(4, self.window_width/(962/80))
+        self.tableWidget_3.setColumnWidth(5, self.window_width/(962/80))
+        self.tableWidget_3.setColumnWidth(6, self.window_width/(962/130))
+        self.tableWidget_3.setColumnWidth(7, self.window_width/(962/130))
+        self.tableWidget_3.setColumnWidth(8, self.window_width/(962/80))
+        self.tableWidget_3.setColumnWidth(9, self.window_width/(962/130))
 
         self.table_widget.setColumnWidth(0, self.window_width/(962/10))
         self.table_widget.setColumnWidth(1, self.window_width/(962/60))
@@ -882,11 +907,12 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.set_tableWidget_mylist_font()
         self.set_table_widget_font()
         self.reset_tableWidget_font()
-        self.reset_tableWidget2_font()
+        self.reset_tableWidget_2_font()
+        self.reset_tableWidget_3_font()
         self.reset_tableWidget_mylist_2_font()
         geometry = self.viewer.geometry()
-        print(geometry)
-        print(window_width,window_height)
+        # print(geometry)
+        # print(window_width,window_height)
 
         super().resizeEvent(event)
 
@@ -939,6 +965,20 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.lineEdit.setReadOnly(True)
         self.lineEdit.setText(self.username)
         self.parameter_data = ['0056.TW','KDCross','2014-07-26','2024-07-26','code','10000','0.002'] #參數默認設定 
+        self.parameter50_data = [[
+                                  '2330', '2317', '2454', '2308', '2881', '2382', '2303', '2882', '2891', '3711',
+                                  '2412', '2886', '2884', '1216', '2357', '2885', '2892', '2327', '3034', '2890',
+                                  '5880', '2345', '3231', '2880', '3008', '2883', '2002', '2379', '4938', '2207',
+                                  '1303', '2887', '1101', '2603', '2301', '3037', '1301', '5871', '3017', '3045',
+                                  '2912', '4904', '6446', '2395', '6669', '3661', '5876', '1326', '1590', '6505'
+                                 ],'KDCross','2014-07-26','2024-07-26','code','10000','0.002'] #參數默認設定 
+        self.parameter50_name = [
+                                 '台積電', '鴻海', '聯發科', '台達電', '富邦金', '廣達', '聯電', '國泰金', '中信金', '日月光投控',
+                                 '中華電', '兆豐金', '玉山金', '統一', '華碩', '元大金', '第一金', '國巨', '聯詠', '永豐金',
+                                 '合庫金', '智邦', '緯創', '華南金', '大立光', '開發金', '中鋼', '瑞昱', '和碩', '和泰車', '南亞',
+                                 '台新金', '台泥', '長榮', '光寶科', '欣興', '台塑', '中租-KY', '奇鋐', '台灣大', '統一超',
+                                 '遠傳', '藥華藥', '研華', '緯穎', '世芯-KY', '上海商銀', '台化', '亞德客-KY', '台塑化'
+                                ]
         page_2 = self.stackedWidget.widget(1)
         page_2_layout = QVBoxLayout(page_2)
         self.splitter = QSplitter(Qt.Vertical)
@@ -956,12 +996,25 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.tabWidget.addTab(tab2, "交易明細")
         tab3 = QWidget()
         self.tab3_layout = QVBoxLayout(tab3)
-        self.tab3_layout.addWidget(self.tableWidget2)
+        self.tab3_layout.addWidget(self.tableWidget_2)
         self.tabWidget.addTab(tab3, "交易成果")
+
+        self.tab4 = QWidget()
+        self.tab4_layout = QVBoxLayout(self.tab4)
+        self.tab4_layout.addWidget(self.tableWidget_3)
+        self.tabWidget.addTab(self.tab4, "0050成分股之交易成果")
+        index_of_tab_4 = self.tabWidget.indexOf(self.tab4)
+        if self.checkBox.isChecked():
+            # 顯示 tab_4
+            self.tabWidget.setTabVisible(index_of_tab_4, True)
+        else:
+            # 隱藏 tab_4
+            self.tabWidget.setTabVisible(index_of_tab_4, False)
+
         self.tabWidget.setMinimumHeight(45) 
         self.splitter.addWidget(self.tabWidget)
         self.splitter.setStretchFactor(0, 3)
-        self.splitter.setStretchFactor(1, 2)
+        self.splitter.setStretchFactor(1, 4)
         self.splitter.splitterMoved.connect(self.handle_splitter_moved)
 
         page_2_layout.addWidget(self.splitter)
@@ -970,7 +1023,7 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.pushButton_7.clicked.connect(self.go_to_page_1)
         self.pushButton_3.clicked.connect(self.go_to_page_2)
         temp = self.find_my_strategy()
-        print(temp)
+        # print(temp)
         self.comboBox.clear()
         if temp:  # 如果有结果
             for strategy in temp:
@@ -1013,8 +1066,10 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.table_widget.setVisible(False)
         self.tableWidget.setColumnWidth(0, 30)
         self.tableWidget.setColumnWidth(1, 30)
-        self.tableWidget2.setColumnWidth(0, 30)
-        self.tableWidget2.setColumnWidth(1, 30)
+        self.tableWidget_2.setColumnWidth(0, 30)
+        self.tableWidget_2.setColumnWidth(1, 30)
+        self.tableWidget_3.setColumnWidth(0, 30)
+        self.tableWidget_3.setColumnWidth(1, 30)
         self.table_widget.setColumnWidth(0, 30)
         self.table_widget.setColumnWidth(1, 30)
         self.table_widget.setColumnWidth(2, 30)
@@ -1035,7 +1090,7 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.pushButton_4.clicked.connect(self.show_member_info)
 
 
-        self.load_trades_data_defualt()
+        # self.load_trades_data_defualt()
 
         # 获取UI中的控件
 
@@ -1089,16 +1144,30 @@ class IterfaceWindowLogined(QWidget):#登录后画面
     def get_end_date(self):
         return self.dateEdit_end.date().toString('yyyy-MM-dd')
     def st_temp(self):
-        self.parameter_data[0] = self.lineEdit_2.text()
-        self.parameter_data[0] += '.TW'
-        self.parameter_data[1] = self.comboBox.currentText()
-        print(self.parameter_data[1])
+        if self.lineEdit_2.text() == '' or self.comboBox.currentText() == '' or self.lineEdit_3.text() == '' or self.lineEdit_4.text() == '':
+            QMessageBox.information(None, "Warning", "請輸入完整資料")
+        elif self.dateEdit.date().toString('yyyy-MM-dd') == self.dateEdit_2.date().toString('yyyy-MM-dd') or self.dateEdit.date().toString('yyyy-MM-dd') > self.dateEdit_2.date().toString('yyyy-MM-dd'):
+            QMessageBox.information(None, "Warning", "起始日期須小於結束日期")
+        else:
+            self.parameter_data[0] = self.lineEdit_2.text()
+            self.parameter_data[0] += '.TW'
+            self.parameter_data[1] = self.comboBox.currentText()
+            print(self.parameter_data[1])
 
-        self.parameter_data[2] = self.dateEdit.date().toString('yyyy-MM-dd')
-        self.parameter_data[3] = self.dateEdit_2.date().toString('yyyy-MM-dd')
-        self.parameter_data[5] = self.lineEdit_3.text()
-        self.parameter_data[6] = self.lineEdit_4.text()
-        self.load_trades_data()
+            self.parameter_data[2] = self.dateEdit.date().toString('yyyy-MM-dd')
+            self.parameter_data[3] = self.dateEdit_2.date().toString('yyyy-MM-dd')
+            self.parameter_data[5] = self.lineEdit_3.text()
+            self.parameter_data[6] = self.lineEdit_4.text()
+
+            if self.checkBox.isChecked():
+                for i in range(len(self.parameter50_data[0])):
+                    self.parameter50_data[0][i] += '.TW'
+                self.parameter50_data[1] = self.comboBox.currentText()
+                self.parameter50_data[2] = self.dateEdit.date().toString('yyyy-MM-dd')
+                self.parameter50_data[3] = self.dateEdit_2.date().toString('yyyy-MM-dd')
+                self.parameter50_data[5] = self.lineEdit_3.text()
+                self.parameter50_data[6] = self.lineEdit_4.text()
+            self.load_trades_data()
 
     def find_my_strategy(self):
         self.member_id = self.get_member_id()
@@ -1360,18 +1429,51 @@ class IterfaceWindowLogined(QWidget):#登录后画面
                 background-color: transparent;   /* 移除焦点时的背景颜色 */
             }}
         """)
-    def reset_tableWidget2_font(self):
+    def reset_tableWidget_2_font(self):
         font = QFont("Arial", 7*(self.window_height/525))  # 设置全局字体大小 150%7 125%12 约1.7倍
-        row_count = self.tableWidget2.rowCount()
-        col_count = self.tableWidget2.columnCount()
+        row_count = self.tableWidget_2.rowCount()
+        col_count = self.tableWidget_2.columnCount()
         header_font = int(self.window_height/(525/12))
         # 遍历所有单元格并设置字体
         for row in range(row_count):
             for col in range(col_count):
-                item = self.tableWidget2.item(row, col)
+                item = self.tableWidget_2.item(row, col)
                 if item:
                     item.setFont(font)
-        self.tableWidget2.setStyleSheet(f"""
+        self.tableWidget_2.setStyleSheet(f"""
+            QTableWidget {{
+                border: none;  /* 隐藏整个表格的边框 */
+                gridline-color: transparent;  /* 隐藏单元格的网格线 */
+            }}
+
+            QHeaderView::section {{
+                font-size: {header_font}px;
+                border: none;  /* 隐藏列标签的边框 */
+            }}
+
+            QPushButton {{
+                border: none;  /* 隐藏按钮的边框 */
+            }}
+            QTableWidget::item:selected {{
+            background-color: transparent;   /* 移除选中时的背景颜色 */
+            color:black;
+                }}
+            QTableWidget::item:focus {{
+                background-color: transparent;   /* 移除焦点时的背景颜色 */
+            }}
+        """)
+    def reset_tableWidget_3_font(self):
+        font = QFont("Arial", 7*(self.window_height/525))  # 设置全局字体大小 150%7 125%12 约1.7倍
+        row_count = self.tableWidget_3.rowCount()
+        col_count = self.tableWidget_3.columnCount()
+        header_font = int(self.window_height/(525/12))
+        # 遍历所有单元格并设置字体
+        for row in range(row_count):
+            for col in range(col_count):
+                item = self.tableWidget_3.item(row, col)
+                if item:
+                    item.setFont(font)
+        self.tableWidget_3.setStyleSheet(f"""
             QTableWidget {{
                 border: none;  /* 隐藏整个表格的边框 */
                 gridline-color: transparent;  /* 隐藏单元格的网格线 */
@@ -1428,7 +1530,7 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         """)
     def reset_tableWidget_mylist_bt(self):
         self.button_edit_font_size = int(self.window_height/(525/15))
-        print(self.button_edit_font_size)
+        # print(self.button_edit_font_size)
         self.button_edit.setStyleSheet(f"""
             font-size: {self.button_edit_font_size}px;
         """)
@@ -1561,7 +1663,7 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         print(f"執行按钮在行 {row} 被点击")
         self.parameter_data[1] =self.tableWidget_mylist.item(row, 0).text()
         self.load_trades_data()
-        print(self.parameter_data)
+        # print(self.parameter_data)
 
 
     def update_html(self):
@@ -1570,45 +1672,83 @@ class IterfaceWindowLogined(QWidget):#登录后画面
 
     def load_trades_data_defualt(self): #加载交易明细画面（默認）
         font = QFont("Arial", 7*(self.window_height/525))
-        import test1
-        rslt, trades = test1.test1_main(self.parameter_data,self.member_id, 0) #總之這種的就是呼叫test1 parameter_data是給test1的參數ctrl+f可以找到在哪
-        self.tableWidget.setRowCount(len(trades))
-        for row_index, row_data in enumerate(trades.itertuples(index=False)):
-            formatted_data = [
-                row_data.EntryTime.date(),
-                row_data.ExitTime.date(),
-                round(row_data.EntryPrice),
-                round(row_data.ExitPrice),
-                round(row_data.Size),
-                round(row_data.PnL),
-                f"{row_data.ReturnPct:.5f}"
-            ]
-            for col_index, cell_data in enumerate(formatted_data): #展示不用動
-                item = QTableWidgetItem(str(cell_data))
-                item.setFont(font)
-                item.setTextAlignment(Qt.AlignCenter)
-                self.tableWidget.setItem(row_index, col_index, item) 
-        self.tableWidget2.setRowCount(1)
-        formatted_data = [
-            rslt['# Trades'],
-            str(round(rslt['Win Rate [%]'],2))+'%',
-            rslt['Equity Final [$]'],
-            str(round(rslt['Return [%]'],2))+'%',
-            rslt['Start'].date(),
-            rslt['End'].date(),
-            rslt['Duration'].days,
-            str(round(rslt['Buy & Hold Return [%]'],2))+'%'
-        ]
-        for col_index, cell_data in enumerate(formatted_data):
-            item = QTableWidgetItem(str(cell_data))
-            item.setFont(font)
-            item.setTextAlignment(Qt.AlignCenter)
-            self.tableWidget2.setItem(0, col_index, item) 
+        # import test1
+        # rslt, trades = test1.test1_main(self.parameter_data,self.member_id, 0) #總之這種的就是呼叫test1 parameter_data是給test1的參數ctrl+f可以找到在哪
+        # self.tableWidget.setRowCount(len(trades))
+        # for row_index, row_data in enumerate(trades.itertuples(index=False)):
+        #     formatted_data = [
+        #         row_data.EntryTime.date(),
+        #         row_data.ExitTime.date(),
+        #         round(row_data.EntryPrice),
+        #         round(row_data.ExitPrice),
+        #         round(row_data.Size),
+        #         round(row_data.PnL),
+        #         f"{row_data.ReturnPct:.5f}"
+        #     ]
+        #     for col_index, cell_data in enumerate(formatted_data): #展示不用動
+        #         item = QTableWidgetItem(str(cell_data))
+        #         item.setFont(font)
+        #         item.setTextAlignment(Qt.AlignCenter)
+        #         self.tableWidget.setItem(row_index, col_index, item) 
+        # self.tableWidget_2.setRowCount(1)
+        # formatted_data = [
+        #     rslt['# Trades'],
+        #     str(round(rslt['Win Rate [%]'],2))+'%',
+        #     rslt['Equity Final [$]'],
+        #     str(round(rslt['Return [%]'],2))+'%',
+        #     rslt['Start'].date(),
+        #     rslt['End'].date(),
+        #     rslt['Duration'].days,
+        #     str(round(rslt['Buy & Hold Return [%]'],2))+'%'
+        # ]
+        # for col_index, cell_data in enumerate(formatted_data):
+        #     item = QTableWidgetItem(str(cell_data))
+        #     item.setFont(font)
+        #     item.setTextAlignment(Qt.AlignCenter)
+        #     self.tableWidget_2.setItem(0, col_index, item) 
+        # self.tableWidget_3.setRowCount(len(self.parameter50_data[0]))
+        # for i in range(len(self.parameter50_data[0])):
+        #     formatted_data = [
+        #                         self.parameter50_data[0][i].replace('.TW',''), 
+        #                         self.parameter50_name[i]
+        #                      ]
+        #     for col_index, cell_data in enumerate(formatted_data):
+        #         item = QTableWidgetItem(str(cell_data))
+        #         item.setFont(font)
+        #         item.setTextAlignment(Qt.AlignCenter)
+        #         self.tableWidget_3.setItem(i, col_index, item)
     def load_trades_data(self): #加载交易明细画面 啊這個就跟上面的一樣只是他不是默認的 基本要改的話就去改parameter_data
         font = QFont("Arial", 7*(self.window_height/525))
         import test1
         self.update_html()
         rslt, trades = test1.test1_main(self.parameter_data,self.member_id, 1)
+        index_of_tab_4 = self.tabWidget.indexOf(self.tab4)
+        if self.checkBox.isChecked():
+            # 顯示 tab_4
+            self.tabWidget.setTabVisible(index_of_tab_4, True)
+            rslt50 = test1.test1_main(self.parameter50_data,self.member_id, 1)
+            self.tableWidget_3.setRowCount(len(self.parameter50_data[0]))
+            for i in range(len(rslt50)):
+                formatted_data = [
+                    self.parameter50_data[0][i].replace('.TW',''),
+                    self.parameter50_name[i],
+                    rslt50[i]['# Trades'],
+                    str(round(rslt50[i]['Win Rate [%]'],2))+'%',
+                    rslt50[i]['Equity Final [$]'],
+                    str(round(rslt50[i]['Return [%]'],2))+'%',
+                    rslt50[i]['Start'].date(),
+                    rslt50[i]['End'].date(),
+                    rslt50[i]['Duration'].days,
+                    str(round(rslt50[i]['Buy & Hold Return [%]'],2))+'%'
+                ]
+                for col_index, cell_data in enumerate(formatted_data):
+                    item = QTableWidgetItem(str(cell_data))
+                    item.setFont(font)
+                    item.setTextAlignment(Qt.AlignCenter)
+                    self.tableWidget_3.setItem(i, col_index, item)
+        else:
+            # 隱藏 tab_4
+            self.tabWidget.setTabVisible(index_of_tab_4, False)
         self.viewer = HtmlViewer()        
         self.splitter.insertWidget(0, self.viewer)
         self.tableWidget.setRowCount(len(trades))
@@ -1627,22 +1767,23 @@ class IterfaceWindowLogined(QWidget):#登录后画面
                 item.setFont(font)
                 item.setTextAlignment(Qt.AlignCenter)
                 self.tableWidget.setItem(row_index, col_index, item)
-            self.tableWidget2.setRowCount(1)
-            formatted_data = [
-                rslt['# Trades'],
-                str(round(rslt['Win Rate [%]'],2))+'%',
-                rslt['Equity Final [$]'],
-                str(round(rslt['Return [%]'],2))+'%',
-                rslt['Start'].date(),
-                rslt['End'].date(),
-                rslt['Duration'].days,
-                str(round(rslt['Buy & Hold Return [%]'],2))+'%'
-            ]
-            for col_index, cell_data in enumerate(formatted_data):
-                item = QTableWidgetItem(str(cell_data))
-                item.setFont(font)
-                item.setTextAlignment(Qt.AlignCenter)
-                self.tableWidget2.setItem(0, col_index, item) 
+        self.tableWidget_2.setRowCount(1)
+        formatted_data = [
+            rslt['# Trades'],
+            str(round(rslt['Win Rate [%]'],2))+'%',
+            rslt['Equity Final [$]'],
+            str(round(rslt['Return [%]'],2))+'%',
+            rslt['Start'].date(),
+            rslt['End'].date(),
+            rslt['Duration'].days,
+            str(round(rslt['Buy & Hold Return [%]'],2))+'%'
+        ]
+        for col_index, cell_data in enumerate(formatted_data):
+            item = QTableWidgetItem(str(cell_data))
+            item.setFont(font)
+            item.setTextAlignment(Qt.AlignCenter)
+            self.tableWidget_2.setItem(0, col_index, item) 
+
     def refresh_table_widget(self):
         self.table_widget.clearContents()
         self.table_widget.setRowCount(0)

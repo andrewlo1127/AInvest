@@ -6,6 +6,7 @@ import random
 from PyQt5 import uic, QtCore, QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtWebEngineWidgets import *
+from test1 import HtmlView
 from test1 import HtmlViewer
 from chatbot_window import ChatbotWindow
 import yfinance as yf
@@ -744,6 +745,7 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.dateEdit.setGeometry(window_width/(962/520),window_height/(525/55) , window_width/(962/125), window_height/(525/22))
         self.dateEdit_2.setGeometry(window_width/(962/520),window_height/(525/100) , window_width/(962/125), window_height/(525/22))
         self.checkBox.setGeometry(window_width/(962/400),window_height/(525/160) , window_width/(962/131), window_height/(525/21))
+        self.checkBox_2.setGeometry(window_width/(962/400),window_height/(525/180) , window_width/(962/161), window_height/(525/21))
         self.pushButton_9.setGeometry(window_width/(962/680),window_height/(525/160) , window_width/(962/90), window_height/(525/30))
         self.pushButton_9_font_size = int(window_height/(525/9))
         self.new_pushButton_9_font_size = int(window_height/(525/12))
@@ -777,7 +779,7 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.label_8.setGeometry(window_width/(962/30),window_height/(525/125) , window_width/(962/91), window_height/(525/21))
         self.label_9.setGeometry(window_width/(962/30),window_height/(525/160) , window_width/(962/91), window_height/(525/21))
         self.label_10.setGeometry(window_width/(962/390),window_height/(525/125) , window_width/(962/81), window_height/(525/21))
-        self.label_11.setGeometry(window_width/(962/400),window_height/(525/180) , window_width/(962/261), window_height/(525/21))
+        self.label_11.setGeometry(window_width/(962/400),window_height/(525/200) , window_width/(962/261), window_height/(525/21))
         self.small_label_font_size = int(window_height/(525/12))
         self.big_label_font_size = int(window_height/(525/14))
         self.pushButton_8_font_size = int(window_height/(525/12))
@@ -842,6 +844,9 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.checkBox.setStyleSheet(f"""
             font-size: {self.small_label_font_size}px;
         """)
+        self.checkBox_2.setStyleSheet(f"""
+            font-size: {self.small_label_font_size}px;
+        """)
         self.tableWidget.setColumnWidth(0, self.window_width/(962/130))
         self.tableWidget.setColumnWidth(1, self.window_width/(962/130))
         self.tableWidget.setColumnWidth(2, self.window_width/(962/80))
@@ -869,6 +874,16 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.tableWidget_3.setColumnWidth(7, self.window_width/(962/130))
         self.tableWidget_3.setColumnWidth(8, self.window_width/(962/80))
         self.tableWidget_3.setColumnWidth(9, self.window_width/(962/130))
+
+        self.tableWidget_4.setColumnWidth(0, self.window_width/(962/80))
+        self.tableWidget_4.setColumnWidth(1, self.window_width/(962/80))
+        self.tableWidget_4.setColumnWidth(2, self.window_width/(962/80))
+        self.tableWidget_4.setColumnWidth(3, self.window_width/(962/80))
+        self.tableWidget_4.setColumnWidth(4, self.window_width/(962/80))
+        self.tableWidget_4.setColumnWidth(5, self.window_width/(962/130))
+        self.tableWidget_4.setColumnWidth(6, self.window_width/(962/130))
+        self.tableWidget_4.setColumnWidth(7, self.window_width/(962/80))
+        self.tableWidget_4.setColumnWidth(8, self.window_width/(962/130))
 
         self.table_widget.setColumnWidth(0, self.window_width/(962/10))
         self.table_widget.setColumnWidth(1, self.window_width/(962/60))
@@ -909,6 +924,7 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.reset_tableWidget_font()
         self.reset_tableWidget_2_font()
         self.reset_tableWidget_3_font()
+        self.reset_tableWidget_4_font()
         self.reset_tableWidget_mylist_2_font()
         geometry = self.viewer.geometry()
         # print(geometry)
@@ -983,33 +999,55 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         page_2_layout = QVBoxLayout(page_2)
         self.splitter = QSplitter(Qt.Vertical)
         self.splitter.setStyleSheet("QSplitter::handle { background-color: transparent; }")
-        self.viewer = HtmlViewer()
+        self.viewer = HtmlView()
         self.splitter.addWidget(self.viewer)
         self.tabWidget = QTabWidget()
+
         tab1 = QWidget()
         self.tab1_layout = QVBoxLayout(tab1)
         self.tab1_layout.addWidget(self.widget_edit_st)
         self.tabWidget.addTab(tab1, "策略參數調整")
+
         tab2 = QWidget()
         self.tab2_layout = QVBoxLayout(tab2)
         self.tab2_layout.addWidget(self.tableWidget)
         self.tabWidget.addTab(tab2, "交易明細")
+        
         tab3 = QWidget()
         self.tab3_layout = QVBoxLayout(tab3)
         self.tab3_layout.addWidget(self.tableWidget_2)
         self.tabWidget.addTab(tab3, "交易成果")
-
-        self.tab4 = QWidget()
-        self.tab4_layout = QVBoxLayout(self.tab4)
+        
+        tab4 = QWidget()
+        self.tab4_layout = QVBoxLayout(tab4)
         self.tab4_layout.addWidget(self.tableWidget_3)
-        self.tabWidget.addTab(self.tab4, "0050成分股之交易成果")
-        index_of_tab_4 = self.tabWidget.indexOf(self.tab4)
+        self.tabWidget.addTab(tab4, "0050成分股之交易成果")
+        self.index_of_tab_4 = self.tabWidget.indexOf(tab4)
         if self.checkBox.isChecked():
             # 顯示 tab_4
-            self.tabWidget.setTabVisible(index_of_tab_4, True)
+            self.tabWidget.setTabVisible(self.index_of_tab_4, True)
         else:
             # 隱藏 tab_4
-            self.tabWidget.setTabVisible(index_of_tab_4, False)
+            self.tabWidget.setTabVisible(self.index_of_tab_4, False)
+        
+        tab5 = QWidget()
+        self.tab5_layout = QVBoxLayout(tab5)
+        self.tab5_layout.addWidget(self.tableWidget_4)
+        self.tabWidget.addTab(tab5, "觀察清單成分股之交易成果")
+        self.my_parameter_data = [[],'KDCross','2014-07-26','2024-07-26','code','10000','0.002']
+        if (self.check_target() == None):
+            self.checkBox_2.setEnabled(False)
+        else:
+            self.checkBox_2.setEnabled(True)
+            for id in self.check_target():
+                self.my_parameter_data[0].append(id)
+        self.index_of_tab_5 = self.tabWidget.indexOf(tab5)
+        if self.checkBox_2.isChecked():
+            # 顯示 tab_5
+            self.tabWidget.setTabVisible(self.index_of_tab_5, True)
+        else:
+            # 隱藏 tab_5
+            self.tabWidget.setTabVisible(self.index_of_tab_5, False)
 
         self.tabWidget.setMinimumHeight(45) 
         self.splitter.addWidget(self.tabWidget)
@@ -1070,6 +1108,8 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.tableWidget_2.setColumnWidth(1, 30)
         self.tableWidget_3.setColumnWidth(0, 30)
         self.tableWidget_3.setColumnWidth(1, 30)
+        self.tableWidget_4.setColumnWidth(0, 30)
+        self.tableWidget_4.setColumnWidth(1, 30)
         self.table_widget.setColumnWidth(0, 30)
         self.table_widget.setColumnWidth(1, 30)
         self.table_widget.setColumnWidth(2, 30)
@@ -1152,7 +1192,7 @@ class IterfaceWindowLogined(QWidget):#登录后画面
             self.parameter_data[0] = self.lineEdit_2.text()
             self.parameter_data[0] += '.TW'
             self.parameter_data[1] = self.comboBox.currentText()
-            print(self.parameter_data[1])
+            # print(self.parameter_data[1])
 
             self.parameter_data[2] = self.dateEdit.date().toString('yyyy-MM-dd')
             self.parameter_data[3] = self.dateEdit_2.date().toString('yyyy-MM-dd')
@@ -1167,7 +1207,29 @@ class IterfaceWindowLogined(QWidget):#登录后画面
                 self.parameter50_data[3] = self.dateEdit_2.date().toString('yyyy-MM-dd')
                 self.parameter50_data[5] = self.lineEdit_3.text()
                 self.parameter50_data[6] = self.lineEdit_4.text()
+
+            if self.checkBox_2.isChecked():
+                for i in range(len(self.my_parameter_data[0])):
+                    self.my_parameter_data[0][i] += '.TW'
+                self.my_parameter_data[1] = self.comboBox.currentText()
+                self.my_parameter_data[2] = self.dateEdit.date().toString('yyyy-MM-dd')
+                self.my_parameter_data[3] = self.dateEdit_2.date().toString('yyyy-MM-dd')
+                self.my_parameter_data[5] = self.lineEdit_3.text()
+                self.my_parameter_data[6] = self.lineEdit_4.text()
+            # print(self.my_parameter_data)
             self.load_trades_data()
+
+    def check_target(self):
+        cursor = self.db_connection.cursor(buffered=True)
+        member_id = self.get_member_id()
+        query = "SELECT target_id FROM target WHERE member_id = %s"
+        cursor.execute(query, (member_id, ))
+        result = cursor.fetchone()
+        if result is None:
+            cursor.close()
+            return None
+        cursor.close()
+        return result
 
     def find_my_strategy(self):
         self.member_id = self.get_member_id()
@@ -1495,6 +1557,39 @@ class IterfaceWindowLogined(QWidget):#登录后画面
                 background-color: transparent;   /* 移除焦点时的背景颜色 */
             }}
         """)
+    def reset_tableWidget_4_font(self):
+        font = QFont("Arial", 7*(self.window_height/525))  # 设置全局字体大小 150%7 125%12 约1.7倍
+        row_count = self.tableWidget_4.rowCount()
+        col_count = self.tableWidget_4.columnCount()
+        header_font = int(self.window_height/(525/12))
+        # 遍历所有单元格并设置字体
+        for row in range(row_count):
+            for col in range(col_count):
+                item = self.tableWidget_4.item(row, col)
+                if item:
+                    item.setFont(font)
+        self.tableWidget_4.setStyleSheet(f"""
+            QTableWidget {{
+                border: none;  /* 隐藏整个表格的边框 */
+                gridline-color: transparent;  /* 隐藏单元格的网格线 */
+            }}
+
+            QHeaderView::section {{
+                font-size: {header_font}px;
+                border: none;  /* 隐藏列标签的边框 */
+            }}
+
+            QPushButton {{
+                border: none;  /* 隐藏按钮的边框 */
+            }}
+            QTableWidget::item:selected {{
+            background-color: transparent;   /* 移除选中时的背景颜色 */
+            color:black;
+                }}
+            QTableWidget::item:focus {{
+                background-color: transparent;   /* 移除焦点时的背景颜色 */
+            }}
+        """)
     def reset_tableWidget_mylist_2_font(self):
         font = QFont("Arial", 7*(self.window_height/525))  # 设置全局字体大小 150%7 125%12 约1.7倍
         row_count = self.tableWidget_mylist_2.rowCount()
@@ -1722,10 +1817,9 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         import test1
         self.update_html()
         rslt, trades = test1.test1_main(self.parameter_data,self.member_id, 1)
-        index_of_tab_4 = self.tabWidget.indexOf(self.tab4)
         if self.checkBox.isChecked():
             # 顯示 tab_4
-            self.tabWidget.setTabVisible(index_of_tab_4, True)
+            self.tabWidget.setTabVisible(self.index_of_tab_4, True)
             rslt50 = test1.test1_main(self.parameter50_data,self.member_id, 1)
             self.tableWidget_3.setRowCount(len(self.parameter50_data[0]))
             for i in range(len(rslt50)):
@@ -1748,7 +1842,33 @@ class IterfaceWindowLogined(QWidget):#登录后画面
                     self.tableWidget_3.setItem(i, col_index, item)
         else:
             # 隱藏 tab_4
-            self.tabWidget.setTabVisible(index_of_tab_4, False)
+            self.tabWidget.setTabVisible(self.index_of_tab_4, False)
+        if self.checkBox_2.isChecked():
+            # 顯示 tab_5
+            self.tabWidget.setTabVisible(self.index_of_tab_5, True)
+            myrslt = test1.test1_main(self.my_parameter_data,self.member_id, 1)
+            self.tableWidget_4.setRowCount(len(self.my_parameter_data[0]))
+            for i in range(len(myrslt)):
+                formatted_data = [
+                    self.my_parameter_data[0][i].replace('.TW',''),
+                    myrslt[i]['# Trades'],
+                    str(round(myrslt[i]['Win Rate [%]'],2))+'%',
+                    myrslt[i]['Equity Final [$]'],
+                    str(round(myrslt[i]['Return [%]'],2))+'%',
+                    myrslt[i]['Start'].date(),
+                    myrslt[i]['End'].date(),
+                    myrslt[i]['Duration'].days,
+                    str(round(myrslt[i]['Buy & Hold Return [%]'],2))+'%'
+                ]
+                print(formatted_data)
+                for col_index, cell_data in enumerate(formatted_data):
+                    item = QTableWidgetItem(str(cell_data))
+                    item.setFont(font)
+                    item.setTextAlignment(Qt.AlignCenter)
+                    self.tableWidget_4.setItem(i, col_index, item)
+        else:
+            # 隱藏 tab_5
+            self.tabWidget.setTabVisible(self.index_of_tab_5, False)
         self.viewer = HtmlViewer()        
         self.splitter.insertWidget(0, self.viewer)
         self.tableWidget.setRowCount(len(trades))
@@ -1814,6 +1934,13 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.remove_stock_from_db(stock_symbol)
         self.table_widget.removeRow(row)
         self.table_widget.cellClicked.connect(self.on_cell_clicked)
+        self.my_parameter_data = [[],'KDCross','2014-07-26','2024-07-26','code','10000','0.002']
+        if (self.check_target() == None):
+            self.checkBox_2.setEnabled(False)
+        else:
+            self.checkBox_2.setEnabled(True)
+            for id in self.check_target():
+                self.my_parameter_data[0].append(id)
 
     def remove_stock_from_db(self, stock_symbol):
         cursor = self.db_connection.cursor()
@@ -1825,6 +1952,13 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         except mysql.connector.Error as err:
             QMessageBox.warning(self, "Database Error", f"Error: {err}")
         cursor.close()
+        self.my_parameter_data = [[],'KDCross','2014-07-26','2024-07-26','code','10000','0.002']
+        if (self.check_target() == None):
+            self.checkBox_2.setEnabled(False)
+        else:
+            self.checkBox_2.setEnabled(True)
+            for id in self.check_target():
+                self.my_parameter_data[0].append(id)
 
     def button_clicked_increase(self):
         print("轉移至新增策略")
@@ -1857,6 +1991,13 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         cursor.execute(query, (stock_symbol, member_id))
         result = cursor.fetchone()
         cursor.close()
+        self.my_parameter_data = [[],'KDCross','2014-07-26','2024-07-26','code','10000','0.002']
+        if (self.check_target() == None):
+            self.checkBox_2.setEnabled(False)
+        else:
+            self.checkBox_2.setEnabled(True)
+            for id in self.check_target():
+                self.my_parameter_data[0].append(id)
         return result is not None
 
     def update_table_with_stock_data(self, stock_data):#不用管
@@ -1890,6 +2031,13 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         except mysql.connector.Error as err:
             QMessageBox.warning(self, "Database Error", f"Error: {err}")
         cursor.close()
+        self.my_parameter_data = [[],'KDCross','2014-07-26','2024-07-26','code','10000','0.002']
+        if (self.check_target() == None):
+            self.checkBox_2.setEnabled(False)
+        else:
+            self.checkBox_2.setEnabled(True)
+            for id in self.check_target():
+                self.my_parameter_data[0].append(id)
 
     def get_member_id(self):#不用管
         cursor = self.db_connection.cursor()

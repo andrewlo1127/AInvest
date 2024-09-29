@@ -220,9 +220,9 @@ QPushButton {
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>210</y>
+         <y>180</y>
          <width>911</width>
-         <height>201</height>
+         <height>231</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -527,13 +527,26 @@ font-size: 12px; font-weight: bold;
         <property name="geometry">
          <rect>
           <x>422</x>
-          <y>180</y>
+          <y>200</y>
           <width>261</width>
           <height>21</height>
          </rect>
         </property>
         <property name="text">
          <string>啟用後由於資料較大會需等待一段時間</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="checkBox_2">
+        <property name="geometry">
+         <rect>
+          <x>400</x>
+          <y>180</y>
+          <width>161</width>
+          <height>19</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>啟用觀察清單成分股</string>
         </property>
        </widget>
       </widget>
@@ -702,6 +715,66 @@ font-size: 12px; font-weight: bold;
        <column>
         <property name="text">
          <string>持續天數</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>買進並持有的獲利率</string>
+        </property>
+       </column>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="tab_5">
+      <attribute name="title">
+       <string/>
+      </attribute>
+      <widget class="QTableWidget" name="tableWidget_4">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>150</y>
+         <width>891</width>
+         <height>261</height>
+        </rect>
+       </property>
+       <column>
+        <property name="text">
+         <string>股票代號</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>交易次數</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>勝率</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>累積獲利</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>累積獲利率</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>進場時間</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>出場時間</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>持續時間</string>
         </property>
        </column>
        <column>

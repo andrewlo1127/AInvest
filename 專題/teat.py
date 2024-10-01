@@ -981,20 +981,17 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.lineEdit.setReadOnly(True)
         self.lineEdit.setText(self.username)
         self.parameter_data = ['0056.TW','KDCross','2014-07-26','2024-07-26','code','10000','0.002'] #參數默認設定 
-        self.parameter50_data = [[
-                                  '2330', '2317', '2454', '2308', '2881', '2382', '2303', '2882', '2891', '3711',
+        self.parameter50_data = [['2330', '2317', '2454', '2308', '2881', '2382', '2303', '2882', '2891', '3711',
                                   '2412', '2886', '2884', '1216', '2357', '2885', '2892', '2327', '3034', '2890',
                                   '5880', '2345', '3231', '2880', '3008', '2883', '2002', '2379', '4938', '2207',
                                   '1303', '2887', '1101', '2603', '2301', '3037', '1301', '5871', '3017', '3045',
-                                  '2912', '4904', '6446', '2395', '6669', '3661', '5876', '1326', '1590', '6505'
-                                 ],'KDCross','2014-07-26','2024-07-26','code','10000','0.002'] #參數默認設定 
-        self.parameter50_name = [
-                                 '台積電', '鴻海', '聯發科', '台達電', '富邦金', '廣達', '聯電', '國泰金', '中信金', '日月光投控',
+                                  '2912', '4904', '6446', '2395', '6669', '3661', '5876', '1326', '1590', '6505'],
+                                  'KDCross','2014-07-26','2024-07-26','code','10000','0.002'] #參數默認設定 
+        self.parameter50_name = ['台積電', '鴻海', '聯發科', '台達電', '富邦金', '廣達', '聯電', '國泰金', '中信金', '日月光投控',
                                  '中華電', '兆豐金', '玉山金', '統一', '華碩', '元大金', '第一金', '國巨', '聯詠', '永豐金',
                                  '合庫金', '智邦', '緯創', '華南金', '大立光', '開發金', '中鋼', '瑞昱', '和碩', '和泰車', '南亞',
                                  '台新金', '台泥', '長榮', '光寶科', '欣興', '台塑', '中租-KY', '奇鋐', '台灣大', '統一超',
-                                 '遠傳', '藥華藥', '研華', '緯穎', '世芯-KY', '上海商銀', '台化', '亞德客-KY', '台塑化'
-                                ]
+                                 '遠傳', '藥華藥', '研華', '緯穎', '世芯-KY', '上海商銀', '台化', '亞德客-KY', '台塑化']
         page_2 = self.stackedWidget.widget(1)
         page_2_layout = QVBoxLayout(page_2)
         self.splitter = QSplitter(Qt.Vertical)
@@ -1012,12 +1009,12 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.tab2_layout = QVBoxLayout(tab2)
         self.tab2_layout.addWidget(self.tableWidget)
         self.tabWidget.addTab(tab2, "交易明細")
-        
+
         tab3 = QWidget()
         self.tab3_layout = QVBoxLayout(tab3)
         self.tab3_layout.addWidget(self.tableWidget_2)
         self.tabWidget.addTab(tab3, "交易成果")
-        
+
         tab4 = QWidget()
         self.tab4_layout = QVBoxLayout(tab4)
         self.tab4_layout.addWidget(self.tableWidget_3)
@@ -1029,7 +1026,7 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         else:
             # 隱藏 tab_4
             self.tabWidget.setTabVisible(self.index_of_tab_4, False)
-        
+
         tab5 = QWidget()
         self.tab5_layout = QVBoxLayout(tab5)
         self.tab5_layout.addWidget(self.tableWidget_4)

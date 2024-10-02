@@ -1033,9 +1033,11 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.tabWidget.addTab(tab5, "觀察清單成分股之交易成果")
         self.my_parameter_data = [[],'KDCross','2014-07-26','2024-07-26','code','10000','0.002']
         if (self.check_target() == None):
+            self.checkBox_2.setChecked(False)
             self.checkBox_2.setEnabled(False)
         else:
             self.checkBox_2.setEnabled(True)
+            self.my_parameter_data[0] = []
             for id in self.check_target():
                 self.my_parameter_data[0].append(id)
         self.index_of_tab_5 = self.tabWidget.indexOf(tab5)
@@ -1221,8 +1223,9 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         member_id = self.get_member_id()
         query = "SELECT target_id FROM target WHERE member_id = %s"
         cursor.execute(query, (member_id, ))
-        result = cursor.fetchone()
-        if result is None:
+        result = cursor.fetchall()
+        result = [row[0] for row in result]
+        if result == []:
             cursor.close()
             return None
         cursor.close()
@@ -1933,9 +1936,11 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.table_widget.cellClicked.connect(self.on_cell_clicked)
         self.my_parameter_data = [[],'KDCross','2014-07-26','2024-07-26','code','10000','0.002']
         if (self.check_target() == None):
+            self.checkBox_2.setChecked(False)
             self.checkBox_2.setEnabled(False)
         else:
             self.checkBox_2.setEnabled(True)
+            self.my_parameter_data[0] = []
             for id in self.check_target():
                 self.my_parameter_data[0].append(id)
 
@@ -1949,13 +1954,6 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         except mysql.connector.Error as err:
             QMessageBox.warning(self, "Database Error", f"Error: {err}")
         cursor.close()
-        self.my_parameter_data = [[],'KDCross','2014-07-26','2024-07-26','code','10000','0.002']
-        if (self.check_target() == None):
-            self.checkBox_2.setEnabled(False)
-        else:
-            self.checkBox_2.setEnabled(True)
-            for id in self.check_target():
-                self.my_parameter_data[0].append(id)
 
     def button_clicked_increase(self):
         print("轉移至新增策略")
@@ -1988,14 +1986,6 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         cursor.execute(query, (stock_symbol, member_id))
         result = cursor.fetchone()
         cursor.close()
-        self.my_parameter_data = [[],'KDCross','2014-07-26','2024-07-26','code','10000','0.002']
-        if (self.check_target() == None):
-            self.checkBox_2.setEnabled(False)
-        else:
-            self.checkBox_2.setEnabled(True)
-            for id in self.check_target():
-                self.my_parameter_data[0].append(id)
-        return result is not None
 
     def update_table_with_stock_data(self, stock_data):#不用管
         new_data = [
@@ -2030,9 +2020,11 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         cursor.close()
         self.my_parameter_data = [[],'KDCross','2014-07-26','2024-07-26','code','10000','0.002']
         if (self.check_target() == None):
+            self.checkBox_2.setChecked(False)
             self.checkBox_2.setEnabled(False)
         else:
             self.checkBox_2.setEnabled(True)
+            self.my_parameter_data[0] = []
             for id in self.check_target():
                 self.my_parameter_data[0].append(id)
 

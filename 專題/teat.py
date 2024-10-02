@@ -1894,7 +1894,7 @@ class IterfaceWindowLogined(QWidget):#登录后画面
             self.tabWidget.setTabVisible(self.index_of_tab_5, False)
         
         # 交易明细介面
-        self.viewer = HtmlViewer('./Strategy.html')
+        self.viewer = HtmlViewer('./HTML/Strategy.html')
         self.splitter.insertWidget(0, self.viewer)
         self.tableWidget.setRowCount(len(trades))
         # 允許表格排序
@@ -1949,7 +1949,7 @@ class IterfaceWindowLogined(QWidget):#登录后画面
             if isinstance(widget, HtmlViewer):  # 如果是 HtmlViewer，則移除
                 widget.setParent(None)  # 移除部件的父級，這樣會自動釋放資源
                 break  # 移除第一個找到的 HtmlViewer 後退出
-        self.viewer = HtmlViewer('./Strategy.html')
+        self.viewer = HtmlViewer('./HTML/Strategy.html')
         self.splitter.insertWidget(0, self.viewer)
 
     def handle_cell_click_3(self, row, column):

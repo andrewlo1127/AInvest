@@ -11,12 +11,12 @@ import os
 import py_compile
 
 class HtmlViewer(QMainWindow):
-    def __init__(self):
+    def __init__(self, file):
         super().__init__()
         self.browser = QWebEngineView()
         self.setCentralWidget(self.browser)
         # 使用绝对路径
-        file_path = os.path.abspath("./Strategy.html")
+        file_path = os.path.abspath(file)
         url = QUrl.fromLocalFile(file_path)
         self.browser.setUrl(url)
         self.setWindowTitle("HTML Viewer")
@@ -177,6 +177,8 @@ def test1_main(data, member_id,state):
                        }
                 continue
             print(rslt)
+            tick = tick.replace('.TW', '')
+            bt.plot(filename='./HTML/'+str(tick)+'.html', open_browser=False)
             reslt.append(rslt)
             # 返回只包含所需字段的 DataFrame
         return reslt

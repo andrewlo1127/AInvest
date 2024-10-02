@@ -6,7 +6,6 @@ import random
 from PyQt5 import uic, QtCore, QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtWebEngineWidgets import *
-from test1 import HtmlView
 from test1 import HtmlViewer
 from chatbot_window import ChatbotWindow
 import yfinance as yf
@@ -17,8 +16,6 @@ from lxml import html
 import urllib.request
 from lxml import etree
 QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
-
-
 
 class FetchStock:#观察清单数据获取
     def __init__(self, favorite_symbols):
@@ -1004,7 +1001,7 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         page_2_layout = QVBoxLayout(page_2)
         self.splitter = QSplitter(Qt.Vertical)
         self.splitter.setStyleSheet("QSplitter::handle { background-color: transparent; }")
-        self.viewer = HtmlView()
+        self.viewer = HtmlViewer('./HTML/white.html')
         self.splitter.addWidget(self.viewer)
         self.tabWidget = QTabWidget()
 
@@ -1208,6 +1205,7 @@ class IterfaceWindowLogined(QWidget):#登录后画面
 
             if self.checkBox.isChecked():
                 for i in range(len(self.parameter50_data[0])):
+                    self.parameter50_data[0][i] = self.parameter50_data[0][i].replace('.TW','')
                     self.parameter50_data[0][i] += '.TW'
                 self.parameter50_data[1] = self.comboBox.currentText()
                 self.parameter50_data[2] = self.dateEdit.date().toString('yyyy-MM-dd')
@@ -1217,6 +1215,7 @@ class IterfaceWindowLogined(QWidget):#登录后画面
 
             if self.checkBox_2.isChecked():
                 for i in range(len(self.my_parameter_data[0])):
+                    self.my_parameter_data[0][i] = self.my_parameter_data[0][i].replace('.TW','')
                     self.my_parameter_data[0][i] += '.TW'
                 self.my_parameter_data[1] = self.comboBox.currentText()
                 self.my_parameter_data[2] = self.dateEdit.date().toString('yyyy-MM-dd')
@@ -1825,6 +1824,8 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         import test1
         self.update_html()
         rslt, trades = test1.test1_main(self.parameter_data,self.member_id, 1)
+
+        # 觀察清單成分股之交易成果介面
         if self.checkBox.isChecked():
             # 顯示 tab_4
             self.tabWidget.setTabVisible(self.index_of_tab_4, True)
@@ -1853,9 +1854,12 @@ class IterfaceWindowLogined(QWidget):#登录后画面
                     item.setFont(font)
                     item.setTextAlignment(Qt.AlignCenter)
                     self.tableWidget_3.setItem(i, col_index, item)
+            self.tableWidget_3.cellClicked.connect(self.handle_cell_click_3)  # 點擊事件
         else:
             # 隱藏 tab_4
             self.tabWidget.setTabVisible(self.index_of_tab_4, False)
+
+        # 0050成分股之交易成果介面
         if self.checkBox_2.isChecked():
             # 顯示 tab_5
             self.tabWidget.setTabVisible(self.index_of_tab_5, True)
@@ -1884,10 +1888,13 @@ class IterfaceWindowLogined(QWidget):#登录后画面
                     item.setFont(font)
                     item.setTextAlignment(Qt.AlignCenter)
                     self.tableWidget_4.setItem(i, col_index, item)
+            self.tableWidget_4.cellClicked.connect(self.handle_cell_click_4)
         else:
             # 隱藏 tab_5
             self.tabWidget.setTabVisible(self.index_of_tab_5, False)
-        self.viewer = HtmlViewer()
+        
+        # 交易明细介面
+        self.viewer = HtmlViewer('./Strategy.html')
         self.splitter.insertWidget(0, self.viewer)
         self.tableWidget.setRowCount(len(trades))
         # 允許表格排序
@@ -1910,6 +1917,8 @@ class IterfaceWindowLogined(QWidget):#登录后画面
                 item.setFont(font)
                 item.setTextAlignment(Qt.AlignCenter)
                 self.tableWidget.setItem(row_index, col_index, item)
+
+        # 交易成果介面
         self.tableWidget_2.setRowCount(1)
         # 允許表格排序
         self.tableWidget_2.setSortingEnabled(True)
@@ -1931,12 +1940,54 @@ class IterfaceWindowLogined(QWidget):#登录后画面
             item.setFont(font)
             item.setTextAlignment(Qt.AlignCenter)
             self.tableWidget_2.setItem(0, col_index, item) 
+        self.tableWidget_2.cellClicked.connect(self.handle_cell_click_2)
+
+    def handle_cell_click_2(self, row, column):
+         # 尋找並移除之前的 HtmlViewer
+        for i in range(self.splitter.count()):
+            widget = self.splitter.widget(i)
+            if isinstance(widget, HtmlViewer):  # 如果是 HtmlViewer，則移除
+                widget.setParent(None)  # 移除部件的父級，這樣會自動釋放資源
+                break  # 移除第一個找到的 HtmlViewer 後退出
+        self.viewer = HtmlViewer('./Strategy.html')
+        self.splitter.insertWidget(0, self.viewer)
+
+    def handle_cell_click_3(self, row, column):
+        item_id = self.tableWidget_3.item(row, 0).text()
+        # 尋找並移除之前的 HtmlViewer
+        for i in range(self.splitter.count()):
+            widget = self.splitter.widget(i)
+            if isinstance(widget, HtmlViewer):  # 如果是 HtmlViewer，則移除
+                widget.setParent(None)  # 移除部件的父級，這樣會自動釋放資源
+                break  # 移除第一個找到的 HtmlViewer 後退出
+        # 插入新的 HtmlViewer
+        if str(item_id)+'.TW' in self.parameter50_data[0]:
+            self.viewer = HtmlViewer('./HTML/'+str(item_id)+'.html')
+            self.splitter.insertWidget(0, self.viewer)
+        else:
+            self.viewer = HtmlViewer('./HTML/white.html')
+            self.splitter.insertWidget(0, self.viewer)
+
+    def handle_cell_click_4(self, row, column):
+        item_id = self.tableWidget_4.item(row, 0).text()
+        # 尋找並移除之前的 HtmlViewer
+        for i in range(self.splitter.count()):
+            widget = self.splitter.widget(i)
+            if isinstance(widget, HtmlViewer):  # 如果是 HtmlViewer，則移除
+                widget.setParent(None)  # 移除部件的父級，這樣會自動釋放資源
+                break  # 移除第一個找到的 HtmlViewer 後退出
+        # 插入新的 HtmlViewer
+        if str(item_id)+'.TW' in self.my_parameter_data[0]:
+            self.viewer = HtmlViewer('./HTML/'+str(item_id)+'.html')
+            self.splitter.insertWidget(0, self.viewer)
+        else:
+            self.viewer = HtmlViewer('./HTML/white.html')
+            self.splitter.insertWidget(0, self.viewer)
 
     def refresh_table_widget(self):
         self.table_widget.clearContents()
         self.table_widget.setRowCount(0)
         self.load_stock_data()
-
 
     def go_to_page_3(self):
         print("Switching to page 3")

@@ -668,6 +668,14 @@ class RegisterWindow(QWidget):#注册画面
         self.interface_window.show()
         self.close()
 
+class NumericTableWidgetItem(QTableWidgetItem):  # 自定义表格单元格类(用來排序數字用)
+    def __lt__(self, other):
+        # 嘗試將值轉換為浮點數進行比較
+        try:
+            return float(self.text()) < float(other.text())
+        except ValueError:
+            # 如果無法轉換為數字，按字母順序排序
+            return self.text() < other.text()
 
 class IterfaceWindowLogined(QWidget):#登录后画面
     def __init__(self, username, db_connection,window_width,window_height):
@@ -1778,7 +1786,7 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         #         round(row_data.ExitPrice),
         #         round(row_data.Size),
         #         round(row_data.PnL),
-        #         f"{row_data.ReturnPct:.5f}"
+        #         round(row_data.ReturnPct,2)
         #     ]
         #     for col_index, cell_data in enumerate(formatted_data): #展示不用動
         #         item = QTableWidgetItem(str(cell_data))
@@ -1822,21 +1830,26 @@ class IterfaceWindowLogined(QWidget):#登录后画面
             self.tabWidget.setTabVisible(self.index_of_tab_4, True)
             rslt50 = test1.test1_main(self.parameter50_data,self.member_id, 1)
             self.tableWidget_3.setRowCount(len(self.parameter50_data[0]))
+            # 允許表格排序
+            self.tableWidget_3.setSortingEnabled(True)
             for i in range(len(rslt50)):
                 formatted_data = [
                     self.parameter50_data[0][i].replace('.TW',''),
                     self.parameter50_name[i],
                     rslt50[i]['# Trades'],
-                    str(round(rslt50[i]['Win Rate [%]'],2))+'%',
+                    round(rslt50[i]['Win Rate [%]'],2),
                     rslt50[i]['Equity Final [$]'],
-                    str(round(rslt50[i]['Return [%]'],2))+'%',
+                    round(rslt50[i]['Return [%]'],2),
                     rslt50[i]['Start'].date(),
                     rslt50[i]['End'].date(),
                     rslt50[i]['Duration'].days,
-                    str(round(rslt50[i]['Buy & Hold Return [%]'],2))+'%'
+                    round(rslt50[i]['Buy & Hold Return [%]'],2)
                 ]
                 for col_index, cell_data in enumerate(formatted_data):
-                    item = QTableWidgetItem(str(cell_data))
+                    if isinstance(cell_data, (int, float)):
+                        item = NumericTableWidgetItem(str(cell_data))
+                    else:
+                        item = QTableWidgetItem(str(cell_data))
                     item.setFont(font)
                     item.setTextAlignment(Qt.AlignCenter)
                     self.tableWidget_3.setItem(i, col_index, item)
@@ -1848,30 +1861,37 @@ class IterfaceWindowLogined(QWidget):#登录后画面
             self.tabWidget.setTabVisible(self.index_of_tab_5, True)
             myrslt = test1.test1_main(self.my_parameter_data,self.member_id, 1)
             self.tableWidget_4.setRowCount(len(self.my_parameter_data[0]))
+            # 允許表格排序
+            self.tableWidget_4.setSortingEnabled(True)
             for i in range(len(myrslt)):
                 formatted_data = [
                     self.my_parameter_data[0][i].replace('.TW',''),
                     myrslt[i]['# Trades'],
-                    str(round(myrslt[i]['Win Rate [%]'],2))+'%',
+                    round(myrslt[i]['Win Rate [%]'],2),
                     myrslt[i]['Equity Final [$]'],
-                    str(round(myrslt[i]['Return [%]'],2))+'%',
+                    round(myrslt[i]['Return [%]'],2),
                     myrslt[i]['Start'].date(),
                     myrslt[i]['End'].date(),
                     myrslt[i]['Duration'].days,
-                    str(round(myrslt[i]['Buy & Hold Return [%]'],2))+'%'
+                    round(myrslt[i]['Buy & Hold Return [%]'],2)
                 ]
                 print(formatted_data)
                 for col_index, cell_data in enumerate(formatted_data):
-                    item = QTableWidgetItem(str(cell_data))
+                    if isinstance(cell_data, (int, float)):
+                        item = NumericTableWidgetItem(str(cell_data))
+                    else:
+                        item = QTableWidgetItem(str(cell_data))
                     item.setFont(font)
                     item.setTextAlignment(Qt.AlignCenter)
                     self.tableWidget_4.setItem(i, col_index, item)
         else:
             # 隱藏 tab_5
             self.tabWidget.setTabVisible(self.index_of_tab_5, False)
-        self.viewer = HtmlViewer()        
+        self.viewer = HtmlViewer()
         self.splitter.insertWidget(0, self.viewer)
         self.tableWidget.setRowCount(len(trades))
+        # 允許表格排序
+        self.tableWidget.setSortingEnabled(True)
         for row_index, row_data in enumerate(trades.itertuples(index=False)):
             formatted_data = [
                 row_data.EntryTime.date(),
@@ -1880,26 +1900,34 @@ class IterfaceWindowLogined(QWidget):#登录后画面
                 round(row_data.ExitPrice),
                 round(row_data.Size),
                 round(row_data.PnL),
-                f"{row_data.ReturnPct:.5f}"
+                round(row_data.ReturnPct,2)
             ]
             for col_index, cell_data in enumerate(formatted_data):
-                item = QTableWidgetItem(str(cell_data))
+                if isinstance(cell_data, (int, float)):
+                    item = NumericTableWidgetItem(str(cell_data))
+                else:
+                    item = QTableWidgetItem(str(cell_data))
                 item.setFont(font)
                 item.setTextAlignment(Qt.AlignCenter)
                 self.tableWidget.setItem(row_index, col_index, item)
         self.tableWidget_2.setRowCount(1)
+        # 允許表格排序
+        self.tableWidget_2.setSortingEnabled(True)
         formatted_data = [
             rslt['# Trades'],
-            str(round(rslt['Win Rate [%]'],2))+'%',
+            round(rslt['Win Rate [%]'],2),
             rslt['Equity Final [$]'],
-            str(round(rslt['Return [%]'],2))+'%',
+            round(rslt['Return [%]'],2),
             rslt['Start'].date(),
             rslt['End'].date(),
             rslt['Duration'].days,
-            str(round(rslt['Buy & Hold Return [%]'],2))+'%'
+            round(rslt['Buy & Hold Return [%]'],2)
         ]
         for col_index, cell_data in enumerate(formatted_data):
-            item = QTableWidgetItem(str(cell_data))
+            if isinstance(cell_data, (int, float)):
+                item = NumericTableWidgetItem(str(cell_data))
+            else:
+                item = QTableWidgetItem(str(cell_data))
             item.setFont(font)
             item.setTextAlignment(Qt.AlignCenter)
             self.tableWidget_2.setItem(0, col_index, item) 

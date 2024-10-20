@@ -15,6 +15,7 @@ import requests
 from lxml import html
 import urllib.request
 from lxml import etree
+import pandas as pd
 QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
 
 class FetchStock:#观察清单数据获取
@@ -986,12 +987,12 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.lineEdit.setReadOnly(True)
         self.lineEdit.setText(self.username)
         self.parameter_data = ['0056.TW','KDCross','2014-07-26','2024-07-26','code','10000','0.002'] #參數默認設定 
-        self.parameter50_data = [['2330', '2317', '2454', '2308', '2881', '2382', '2303', '2882', '2891', '3711',
-                                  '2412', '2886', '2884', '1216', '2357', '2885', '2892', '2327', '3034', '2890',
-                                  '5880', '2345', '3231', '2880', '3008', '2883', '2002', '2379', '4938', '2207',
-                                  '1303', '2887', '1101', '2603', '2301', '3037', '1301', '5871', '3017', '3045',
-                                  '2912', '4904', '6446', '2395', '6669', '3661', '5876', '1326', '1590', '6505'],
-                                  'KDCross','2014-07-26','2024-07-26','code','10000','0.002'] #參數默認設定 
+        self.parameter50_data_default = [['2330', '2317', '2454', '2308', '2881', '2382', '2303', '2882', '2891', '3711',
+                                        '2412', '2886', '2884', '1216', '2357', '2885', '2892', '2327', '3034', '2890',
+                                        '5880', '2345', '3231', '2880', '3008', '2883', '2002', '2379', '4938', '2207',
+                                        '1303', '2887', '1101', '2603', '2301', '3037', '1301', '5871', '3017', '3045',
+                                        '2912', '4904', '6446', '2395', '6669', '3661', '5876', '1326', '1590', '6505'],
+                                        'KDCross','2014-07-26','2024-07-26','code','10000','0.002'] #參數默認設定 
         self.parameter50_name = ['台積電', '鴻海', '聯發科', '台達電', '富邦金', '廣達', '聯電', '國泰金', '中信金', '日月光投控',
                                  '中華電', '兆豐金', '玉山金', '統一', '華碩', '元大金', '第一金', '國巨', '聯詠', '永豐金',
                                  '合庫金', '智邦', '緯創', '華南金', '大立光', '開發金', '中鋼', '瑞昱', '和碩', '和泰車', '南亞',
@@ -1192,6 +1193,8 @@ class IterfaceWindowLogined(QWidget):#登录后画面
             QMessageBox.information(None, "Warning", "請輸入完整資料")
         elif self.dateEdit.date().toString('yyyy-MM-dd') == self.dateEdit_2.date().toString('yyyy-MM-dd') or self.dateEdit.date().toString('yyyy-MM-dd') > self.dateEdit_2.date().toString('yyyy-MM-dd'):
             QMessageBox.information(None, "Warning", "起始日期須小於結束日期")
+        elif not (-0.10 <= float(self.lineEdit_4.text()) < 0.10):
+            QMessageBox.information(None, "Warning", "最大交易手續費必須在 -0.1 到 0.1 之間")
         else:
             self.parameter_data[0] = self.lineEdit_2.text()
             self.parameter_data[0] += '.TW'
@@ -1204,6 +1207,7 @@ class IterfaceWindowLogined(QWidget):#登录后画面
             self.parameter_data[6] = self.lineEdit_4.text()
 
             if self.checkBox.isChecked():
+                self.parameter50_data = self.parameter50_data_default.copy()
                 for i in range(len(self.parameter50_data[0])):
                     self.parameter50_data[0][i] = self.parameter50_data[0][i].replace('.TW','')
                     self.parameter50_data[0][i] += '.TW'
@@ -1829,10 +1833,10 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         if self.checkBox.isChecked():
             # 顯示 tab_4
             self.tabWidget.setTabVisible(self.index_of_tab_4, True)
+            self.tableWidget_3.setSortingEnabled(False)
             rslt50 = test1.test1_main(self.parameter50_data,self.member_id, 1)
             self.tableWidget_3.setRowCount(len(self.parameter50_data[0]))
-            # 允許表格排序
-            self.tableWidget_3.setSortingEnabled(True)
+            data_to_write = []  # 用于存储每行的数据
             for i in range(len(rslt50)):
                 formatted_data = [
                     self.parameter50_data[0][i].replace('.TW',''),
@@ -1854,6 +1858,18 @@ class IterfaceWindowLogined(QWidget):#登录后画面
                     item.setFont(font)
                     item.setTextAlignment(Qt.AlignCenter)
                     self.tableWidget_3.setItem(i, col_index, item)
+                # 将当前行的数据添加到写入 Excel 的列表
+                data_to_write.append(formatted_data)
+
+            # 将数据列表转换为 DataFrame
+            df = pd.DataFrame(data_to_write, columns=[
+                'Ticker', 'Name', '# Trades', 'Win Rate [%]', 'Equity Final [$]', 
+                'Return [%]', 'Start', 'End', 'Duration (days)', 'Buy & Hold Return [%]'
+            ])
+            # 将 DataFrame 写入 Excel
+            df.to_excel('parameter50_data_file.xlsx', index=False)
+            # 允許表格排序
+            self.tableWidget_3.setSortingEnabled(True)
             self.tableWidget_3.cellClicked.connect(self.handle_cell_click_3)  # 點擊事件
         else:
             # 隱藏 tab_4
@@ -1863,10 +1879,9 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         if self.checkBox_2.isChecked():
             # 顯示 tab_5
             self.tabWidget.setTabVisible(self.index_of_tab_5, True)
+            self.tableWidget_4.setSortingEnabled(False)
             myrslt = test1.test1_main(self.my_parameter_data,self.member_id, 1)
             self.tableWidget_4.setRowCount(len(self.my_parameter_data[0]))
-            # 允許表格排序
-            self.tableWidget_4.setSortingEnabled(True)
             for i in range(len(myrslt)):
                 formatted_data = [
                     self.my_parameter_data[0][i].replace('.TW',''),
@@ -1879,7 +1894,7 @@ class IterfaceWindowLogined(QWidget):#登录后画面
                     myrslt[i]['Duration'].days,
                     round(myrslt[i]['Buy & Hold Return [%]'],2)
                 ]
-                print(formatted_data)
+                # print(formatted_data)
                 for col_index, cell_data in enumerate(formatted_data):
                     if isinstance(cell_data, (int, float)):
                         item = NumericTableWidgetItem(str(cell_data))
@@ -1888,6 +1903,8 @@ class IterfaceWindowLogined(QWidget):#登录后画面
                     item.setFont(font)
                     item.setTextAlignment(Qt.AlignCenter)
                     self.tableWidget_4.setItem(i, col_index, item)
+            # 允許表格排序
+            self.tableWidget_4.setSortingEnabled(True)
             self.tableWidget_4.cellClicked.connect(self.handle_cell_click_4)
         else:
             # 隱藏 tab_5

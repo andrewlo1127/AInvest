@@ -123,7 +123,7 @@ def test1_main(data, member_id,state):
     start_date = data[2]
     end_date = data[3]
     money = data[5]
-    commimssion = data[6]
+    commission = data[6]
     if (isinstance(ticker, list)):
         reslt = []
         file_name = get_file_name(connection, member_id, data[1])
@@ -131,7 +131,7 @@ def test1_main(data, member_id,state):
         for tick in ticker:
             df = yf.download(tick, start=start_date, end=end_date)
             df = module.calculate(df)
-            bt = Backtest(df.dropna(), module.strategy, cash=int(money), commission=float(commimssion))
+            bt = Backtest(df.dropna(), module.strategy, cash=int(money), commission=float(commission))
             try:
                 rslt = bt.run()
             except ValueError:
@@ -201,7 +201,7 @@ def test1_main(data, member_id,state):
         print("name:", name)
 
         # 運行回測
-        bt = Backtest(df.dropna(), module.strategy, cash=int(money), commission=float(commimssion))
+        bt = Backtest(df.dropna(), module.strategy, cash=int(money), commission=float(commission))
         rslt = bt.run()
         print(rslt)
         print("\n", rslt["_trades"])

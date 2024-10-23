@@ -6,8 +6,14 @@ class strategy(Strategy):
     upper_bound = 80
 
     def init(self):
-        self.k = self.I(lambda: self.data['K'], name='K')
-        self.d = self.I(lambda: self.data['D'], name='D')
+        # self.k = self.I(lambda: self.data['K'], name='K', overlay=False)
+        # self.d = self.I(lambda: self.data['D'], name='D', overlay=False)
+        # 通過一個函數返回 K 和 D 並顯示在同一個子圖中
+        self.k, self.d = self.I(self.calculate_kd, name = 'KD', overlay=False)
+
+    def calculate_kd(self):
+        # 返回 K 和 D 指標數據
+        return self.data['K'], self.data['D']
 
     def next(self):
         if crossover(self.k, self.d) and self.k[-1] < self.lower_bound and self.d[-1] < self.lower_bound and not self.position:

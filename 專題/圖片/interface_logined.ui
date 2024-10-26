@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>935</width>
+    <width>966</width>
     <height>822</height>
    </rect>
   </property>
@@ -210,7 +210,7 @@ QPushButton {
       </rect>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -657,6 +657,16 @@ font-size: 12px; font-weight: bold;
          <string>買進並持有的獲利率</string>
         </property>
        </column>
+      </widget>
+      <widget class="QTextBrowser" name="textBrowser">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>270</y>
+         <width>891</width>
+         <height>121</height>
+        </rect>
+       </property>
       </widget>
      </widget>
      <widget class="QWidget" name="tab_4">

@@ -16,6 +16,7 @@ from lxml import html
 import urllib.request
 from lxml import etree
 import pandas as pd
+import webbrowser
 QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
 
 class FetchStock:#观察清单数据获取
@@ -870,6 +871,8 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.tableWidget_2.setColumnWidth(6, self.window_width/(962/80))
         self.tableWidget_2.setColumnWidth(7, self.window_width/(962/130))
 
+        self.textBrowser.setFixedWidth(self.window_width)
+
         self.tableWidget_3.setColumnWidth(0, self.window_width/(962/80))
         self.tableWidget_3.setColumnWidth(1, self.window_width/(962/80))
         self.tableWidget_3.setColumnWidth(2, self.window_width/(962/80))
@@ -929,6 +932,7 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.set_table_widget_font()
         self.reset_tableWidget_font()
         self.reset_tableWidget_2_font()
+        # self.reset_textBrowser_font()
         self.reset_tableWidget_3_font()
         self.reset_tableWidget_4_font()
         self.reset_tableWidget_mylist_2_font()
@@ -1019,7 +1023,9 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         tab3 = QWidget()
         self.tab3_layout = QVBoxLayout(tab3)
         self.tab3_layout.addWidget(self.tableWidget_2)
+        self.tab3_layout.addWidget(self.textBrowser)
         self.tabWidget.addTab(tab3, "交易成果")
+
 
         tab4 = QWidget()
         self.tab4_layout = QVBoxLayout(tab4)
@@ -1131,6 +1137,7 @@ class IterfaceWindowLogined(QWidget):#登录后画面
 
         self.table_widget.setShowGrid(False)
 
+        self.pushButton_3.clicked.connect(self.fill_example_data)
         self.pushButton_5.clicked.connect(self.toggle_table_widget_visibility)
         self.pushButton_4.clicked.connect(self.show_member_info)
 
@@ -1148,22 +1155,12 @@ class IterfaceWindowLogined(QWidget):#登录后画面
 
         # 连接按钮点击事件到方法
     def toggle_chatbot(self):
-        # 检查 Chatbot 窗口是否已经可见
-        if self.chatbot_window.isVisible():
-            # 如果窗口已经可见，则关闭
-                    # 获取窗口的当前位置和大小
-            pos = self.chatbot_window.pos()  # 获取位置
-            size = self.chatbot_window.size()  # 获取大小
-
-            # 打印或保存位置和大小，供后续使用
-            print(f"Chatbot 窗口位置: {pos.x()}, {pos.y()}")
-            print(f"Chatbot 窗口大小: {size.width()} x {size.height()}")
-
-            self.chatbot_window.close()
-        else:
-            # 如果窗口不可见，则显示
-            self.chatbot_window.show()
-        self.chatbot_window.open_botpress_chat()
+        username = self.username
+        user_id = self.get_member_id()
+        # 使用者資訊
+        botpress_url = f'https://927f-2001-e10-6840-107-7150-8c4-b902-d1fb.ngrok-free.app/botpress?username={username}&user_id={user_id}'
+        # 打開該網址
+        webbrowser.open(botpress_url)
 
     def handle_splitter_moved(self, pos, index):
         total_height = self.splitter.height()
@@ -1958,6 +1955,32 @@ class IterfaceWindowLogined(QWidget):#登录后画面
             item.setTextAlignment(Qt.AlignCenter)
             self.tableWidget_2.setItem(0, col_index, item) 
         self.tableWidget_2.cellClicked.connect(self.handle_cell_click_2)
+        self.printHint(rslt)
+        # self.textBrowser.setHtml("""
+        #                             <h2 style="color:red;">警告：</h2>
+        #                             <h2 style="color:red;">警告：</h2>
+        #                         """)
+        
+    def printHint(self, rslt):
+        time_delta = pd.Timedelta(rslt["Duration"])
+        times=rslt["# Trades"]
+        # print(f"在這個策略中，平均每周做{times/time_delta.days*7:.2f}次交易，每月做{times/time_delta.days*30.4:.2f}次交易，每年做{times/time_delta.days*365:.2f}次交易")
+        self.textBrowser.setHtml(f"<h1>在這個策略中，平均每周做{times/time_delta.days*7:.2f}次交易，每月做{times/time_delta.days*30.4:.2f}次交易，每年做{times/time_delta.days*365:.2f}次交易</h1>")
+        # 假設您的回測數據已儲存在 DataFrame 中
+        # 找出虧損超過 15% 的交易紀錄
+        trade_lose = []
+
+        for i in range(1, len(rslt["_trades"]['ExitTime'])):
+            # 檢查 ReturnPct 是否小於 -0.15
+            if rslt["_trades"]["ReturnPct"][i] < -0.15:
+                # 提取 EntryTime 和 ExitTime 的年份和月份
+                entry_month = pd.to_datetime(rslt["_trades"]["EntryTime"][i]).to_period("M")
+                exit_month = pd.to_datetime(rslt["_trades"]["ExitTime"][i]).to_period("M")
+                # 將進場和出場月份範圍儲存到 trade_lose 列表中
+                trade_lose.append((entry_month, exit_month, rslt["_trades"]["ReturnPct"][i]))
+        for i in range(0, len(trade_lose)):
+            # print(f"在{trade_lose[i][0]}到{trade_lose[i][1]}損失{abs(trade_lose[i][2]*100):.2f}%")
+            self.textBrowser.append(f"""<h2 style="color:red;">在{trade_lose[i][0]}到{trade_lose[i][1]}損失{abs(trade_lose[i][2]*100):.2f}%</h2">""")
 
     def handle_cell_click_2(self, row, column):
          # 尋找並移除之前的 HtmlViewer

@@ -185,7 +185,7 @@ def test1_main(data, member_id,state):
     else:
         df = yf.download(ticker, start=start_date, end=end_date)
         # 找出檔案名稱
-        if state ==0:
+        if state ==0:  # 用不到了
             member_id = 5
             file_name = get_file_name(connection, member_id, data[1])
             module = load_module(file_name)
@@ -209,9 +209,9 @@ def test1_main(data, member_id,state):
         rslt["Return"] = 0
         for index, trade in rslt['_trades'].iterrows():
             rslt["Return"] += float(trade['PnL'])
-        # html_file = f"Strategy.html"
-        # bt.plot(filename=html_file, open_browser=False)
-        bt.plot(open_browser=False)
+        html_file = f"strategy"
+        bt.plot(filename='./HTML/'+html_file+'.html', open_browser=False)
+        # bt.plot(open_browser=False)
 
         code_id = find_code_id(name, rslt, connection)
         insert_rslt_to_db(name, rslt, code_id, ticker, connection,member_id)

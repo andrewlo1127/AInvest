@@ -309,6 +309,12 @@ class LoginWindow(QWidget):
             QMessageBox.critical(None, "Database Connection Error", f"Error: {err}")
             sys.exit()
 
+    def close_connection(self):
+        """關閉資料庫連線"""
+        if self.db_connection and self.db_connection.is_connected():
+            self.db_connection.close()
+            print("已關閉 MySQL 連線")
+
     def initUI(self):
         uic.loadUi("./圖片/login.ui", self)
 
@@ -688,6 +694,25 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.start_timer()
         self.resize(window_width,window_height)
         self.overlay = None
+
+    def connect_to_db(self):
+        try:
+            connection = mysql.connector.connect(
+                host='3.106.70.39',
+                user='InvestUser',
+                password='Zw.urVWv*gD@J5rT',
+                database='aiinvest'
+            )
+            return connection
+        except mysql.connector.Error as err:
+            QMessageBox.critical(None, "Database Connection Error", f"Error: {err}")
+            sys.exit()
+
+    def close_connection(self):
+        """關閉資料庫連線"""
+        if self.db_connection and self.db_connection.is_connected():
+            self.db_connection.close()
+            print("已關閉 MySQL 連線")
 
     def resizeEvent(self, event):
         # 获取当前窗口大小
@@ -1361,38 +1386,88 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.load_public_list()
             
 
-    def fill_example_data(self):  # 填充個人策略
-        cursor = self.db_connection.cursor()
+    # def fill_example_data(self):  # 填充個人策略
+    #     # # 每次查詢前重新建立資料庫連線
+    #     self.close_connection()
+    #     self.db_connection = self.connect_to_db()  # 確保這個方法存在以建立新連線
+    #     cursor = self.db_connection.cursor()
+    #     try:
+    #         m_id = self.get_member_id()
+
+    #         # 查询符合当前 m_id 的 strategy 和 description
+    #         query = """
+    #         SELECT strategy, description 
+    #         FROM code 
+    #         WHERE member_id = %s AND public = 0
+    #         """
+    #         cursor.execute(query, (m_id,))
+    #         # self.db_connection.commit()
+    #         example_data = cursor.fetchall()
+    #         print(example_data)
+
+    #     finally:
+    #         cursor.close()  # 确保游标被关闭
+
+    #     self.tableWidget_mylist.setRowCount(len(example_data))
+    #     self.tableWidget_mylist.setColumnCount(5)
+   
+
+    #     for row_index, row_data in enumerate(example_data):
+    #         for col_index, cell_data in enumerate(row_data):
+    #             self.tableWidget_mylist.setItem(row_index, col_index, QTableWidgetItem(cell_data))
+    #         self.add_button_to_table(row_index, 2, 3 ,4)
+    #     self.comboBox.clear()
+    #     temp = self.find_my_strategy()
+    #     if temp:  # 如果有结果
+    #         for strategy in temp:
+    #             self.comboBox.addItem(strategy[0])  # 将每个策略添加到 combobox
+    #     self.set_tableWidget_mylist_font()
+    #     self.reset_tableWidget_mylist_bt()
+    #     print("我的策略頁面重製")
+    def fill_example_data(self):
+        # 每次呼叫時重新建立資料庫連線
+        conn = mysql.connector.connect(
+            host='3.106.70.39',
+            user='InvestUser',
+            password='Zw.urVWv*gD@J5rT',
+            database='aiinvest'
+        )
+        cursor = conn.cursor()
+
         try:
             m_id = self.get_member_id()
-
-            # 查询符合当前 m_id 的 strategy 和 description
             query = """
-            SELECT strategy, description 
-            FROM code 
-            WHERE member_id = %s AND public = 0
+                SELECT strategy, description 
+                FROM code 
+                WHERE member_id = %s AND public = 0
             """
             cursor.execute(query, (m_id,))
             example_data = cursor.fetchall()
-
         finally:
-            cursor.close()  # 确保游标被关闭
+            cursor.close()
+            conn.close()
 
+        # 更新表格的行數
         self.tableWidget_mylist.setRowCount(len(example_data))
         self.tableWidget_mylist.setColumnCount(5)
-   
 
         for row_index, row_data in enumerate(example_data):
             for col_index, cell_data in enumerate(row_data):
-                self.tableWidget_mylist.setItem(row_index, col_index, QTableWidgetItem(cell_data))
-            self.add_button_to_table(row_index, 2, 3 ,4)
+                self.tableWidget_mylist.setItem(row_index, col_index, QTableWidgetItem(str(cell_data)))
+
+            # 假設有 add_button_to_table 方法，將按鈕加入到指定位置
+            self.add_button_to_table(row_index, 2, 3, 4)
+
+        # 更新 ComboBox
         self.comboBox.clear()
         temp = self.find_my_strategy()
-        if temp:  # 如果有结果
+        if temp:
             for strategy in temp:
-                self.comboBox.addItem(strategy[0])  # 将每个策略添加到 combobox
+                self.comboBox.addItem(strategy[0])
+
         self.set_tableWidget_mylist_font()
         self.reset_tableWidget_mylist_bt()
+
     def set_table_widget_font(self):
         
         font = QFont("Arial", 8*(self.window_height/525))  # 设置全局字体大小 150%7 125%12 约1.7倍
@@ -1824,7 +1899,7 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         font = QFont("Arial", 7*(self.window_height/525))
         import test1
         self.update_html()
-        rslt, trades = test1.test1_main(self.parameter_data,self.member_id, 1)
+        df, rslt, trades = test1.test1_main(self.parameter_data,self.member_id, 1)
 
         # 觀察清單成分股之交易成果介面
         if self.checkBox.isChecked():
@@ -1955,13 +2030,13 @@ class IterfaceWindowLogined(QWidget):#登录后画面
             item.setTextAlignment(Qt.AlignCenter)
             self.tableWidget_2.setItem(0, col_index, item) 
         self.tableWidget_2.cellClicked.connect(self.handle_cell_click_2)
-        self.printHint(rslt)
+        self.printHint(df, rslt)
         # self.textBrowser.setHtml("""
         #                             <h2 style="color:red;">警告：</h2>
         #                             <h2 style="color:red;">警告：</h2>
         #                         """)
         
-    def printHint(self, rslt):
+    def printHint(self, df, rslt):
         time_delta = pd.Timedelta(rslt["Duration"])
         times=rslt["# Trades"]
         # print(f"在這個策略中，平均每周做{times/time_delta.days*7:.2f}次交易，每月做{times/time_delta.days*30.4:.2f}次交易，每年做{times/time_delta.days*365:.2f}次交易")
@@ -1981,6 +2056,91 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         for i in range(0, len(trade_lose)):
             # print(f"在{trade_lose[i][0]}到{trade_lose[i][1]}損失{abs(trade_lose[i][2]*100):.2f}%")
             self.textBrowser.append(f"""<h2 style="color:red;">在{trade_lose[i][0]}到{trade_lose[i][1]}損失{abs(trade_lose[i][2]*100):.2f}%</h2">""")
+
+        # 找高低點並計算斜率的函式，min_days:回推最小天數,max_days:回推最大天數,slope_threshold:斜率值(每天漲幅)
+        min_days, max_days, slope_threshold = 15, 60, 0.0067
+        df['Rolling_Max'] = df['Close'].rolling(window=10, center=True).max()
+        high_points = df[df['Close'] == df['Rolling_Max']]
+        slope_data = []
+        for high_date, high_row in high_points.iterrows():
+            high_price = high_row['Close']
+            
+            # 回推的時間範圍
+            start_date = high_date - pd.Timedelta(days=max_days)
+            end_date = high_date - pd.Timedelta(days=min_days)
+            # 找出最低點
+            range_data = df[(df.index >= start_date) & (df.index <= end_date)]
+            
+            if not range_data.empty:
+                # 找到區間內的最低價和日期
+                low_price = range_data['Close'].min()
+                low_date = range_data['Close'].idxmin()
+                # 漲幅
+                increase_rate = (high_price - low_price) / low_price
+                # 天數
+                days_diff = (high_date - low_date).days
+                # 計算斜率
+                slope = increase_rate / days_diff if days_diff > 0 else None
+                
+                # 儲存符合條件的斜率
+                if slope is not None and slope > slope_threshold:
+                    slope_data.append({
+                        'Start_Date': low_date, #Low_Date
+                        'End_Date': high_date, #High_Date
+                        'Low_Price': low_price,
+                        'High_Price': high_price,
+                        'Duration_Days': days_diff, #Days_Diff
+                        'Increase_Rate': increase_rate,
+                        #'Slope': slope #可註解
+                    })
+        # 將結果轉換為 DataFrame
+        slope_df = pd.DataFrame(slope_data)
+        # 過濾重複的低點，依照days_diff排序後，保留相同low_date的最高值，在依照low_date排序
+        slope_df = slope_df.sort_values('Duration_Days', ascending=False).drop_duplicates(subset=['Start_Date'], keep='first').sort_values('Start_Date')
+        self.textBrowser.append(f"""<h2 style="color:red;">符合條件的大波段區間:""")
+        self.textBrowser.append(f"{slope_df.to_string(index=False)}")
+
+        n, k, min_consolidation_days=20, 2, 20
+        df = df.copy()
+        if not isinstance(df.index, pd.DatetimeIndex):
+            df.index = pd.to_datetime(df.index)
+
+        # 移動平均和標準差
+        df['SMA'] = df['Close'].rolling(window=n).mean()
+        df['StdDev'] = df['Close'].rolling(window=n).std()
+        # 布林帶寬度
+        df['Upper Band'] = df['SMA'] + k * df['StdDev']
+        df['Lower Band'] = df['SMA'] - k * df['StdDev']
+        df['Bollinger Band Width'] = df['Upper Band'] - df['Lower Band']
+
+        # 計算布林帶寬度平均 window:回推天數
+        df['Bollinger Band Width MA'] = df['Bollinger Band Width'].rolling(window=80).mean()
+
+        # 判定是否為盤整期：布林帶寬度 < 寬度的75%
+        df['Consolidation'] = df['Bollinger Band Width'] < df['Bollinger Band Width MA']*0.75
+
+        # 找出每段連續盤整狀態的開始和結束日期，並確認持續天數
+        consolidation_periods = []
+        start_date = None
+        consolidation_days = 0
+        
+        for date, row in df.iterrows():
+            if row['Consolidation']:
+                if start_date is None:
+                    start_date = date  # 標記盤整期的開始
+                consolidation_days += 1
+            elif start_date is not None:
+                # 結束盤整期
+                if consolidation_days >= min_consolidation_days:
+                    end_date = date
+                    duration = (end_date - start_date).days
+                    consolidation_periods.append([start_date, end_date, duration])
+                start_date = None
+                consolidation_days = 0
+
+        result_df = pd.DataFrame(consolidation_periods, columns=['Start Date', 'End Date', 'Duration (days)'])
+        self.textBrowser.append(f"""<h2 style="color:red;">符合條件的盤整區間:""")
+        self.textBrowser.append(f"{result_df.to_string(index=False)}")
 
     def handle_cell_click_2(self, row, column):
          # 尋找並移除之前的 HtmlViewer
@@ -2612,7 +2772,9 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         if temp:  # 如果有结果
             for strategy in temp:
                 self.comboBox.addItem(strategy[0])  # 将每个策略添加到 combobox
+        # 刷新页面
         self.fill_example_data()
+        self.load_public_list()
         self.stackedWidget.setCurrentIndex(2)
     def create_hover_event(self, button, scale_factor):
         def hover_event(event):

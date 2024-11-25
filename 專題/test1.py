@@ -221,7 +221,7 @@ def test1_main(data, member_id,state):
         connection.close()
         print(data[0])
         # 返回只包含所需字段的 DataFrame
-        return rslt, rslt['_trades'][['EntryTime', 'ExitTime', 'EntryPrice', 'ExitPrice', 'Size', 'PnL', 'ReturnPct']]
+        return df, rslt, rslt['_trades'][['EntryTime', 'ExitTime', 'EntryPrice', 'ExitPrice', 'Size', 'PnL', 'ReturnPct']]
 
 if __name__ == '__main__':
     test1_main()

@@ -1901,7 +1901,7 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.update_html()
         df, rslt, trades = test1.test1_main(self.parameter_data,self.member_id, 1)
 
-        # 觀察清單成分股之交易成果介面
+        # 0050成分股之交易成果介面
         if self.checkBox.isChecked():
             # 顯示 tab_4
             self.tabWidget.setTabVisible(self.index_of_tab_4, True)
@@ -1910,18 +1910,25 @@ class IterfaceWindowLogined(QWidget):#登录后画面
             self.tableWidget_3.setRowCount(len(self.parameter50_data[0]))
             data_to_write = []  # 用于存储每行的数据
             for i in range(len(rslt50)):
-                formatted_data = [
-                    self.parameter50_data[0][i].replace('.TW',''),
-                    self.parameter50_name[i],
-                    rslt50[i]['# Trades'],
-                    round(rslt50[i]['Win Rate [%]'],2),
-                    rslt50[i]['Equity Final [$]'],
-                    round(rslt50[i]['Return [%]'],2),
-                    rslt50[i]['Start'].date(),
-                    rslt50[i]['End'].date(),
-                    rslt50[i]['Duration'].days,
-                    round(rslt50[i]['Buy & Hold Return [%]'],2)
-                ]
+                if rslt50[i]['# Trades'] == 'NA':
+                    formatted_data = [
+                        self.parameter50_data[0][i].replace('.TW',''),
+                        self.parameter50_name[i],
+                        'NA','NA','NA','NA','NA','NA','NA','NA'
+                    ]
+                else:
+                    formatted_data = [
+                        self.parameter50_data[0][i].replace('.TW',''),
+                        self.parameter50_name[i],
+                        rslt50[i]['# Trades'],
+                        round(rslt50[i]['Win Rate [%]'],2),
+                        rslt50[i]['Equity Final [$]'],
+                        round(rslt50[i]['Return [%]'],2),
+                        rslt50[i]['Start'].date(),
+                        rslt50[i]['End'].date(),
+                        rslt50[i]['Duration'].days,
+                        round(rslt50[i]['Buy & Hold Return [%]'],2)
+                    ]
                 for col_index, cell_data in enumerate(formatted_data):
                     if isinstance(cell_data, (int, float)):
                         item = NumericTableWidgetItem(str(cell_data))
@@ -1934,12 +1941,12 @@ class IterfaceWindowLogined(QWidget):#登录后画面
                 data_to_write.append(formatted_data)
 
             # 将数据列表转换为 DataFrame
-            df = pd.DataFrame(data_to_write, columns=[
+            dataframe = pd.DataFrame(data_to_write, columns=[
                 'Ticker', 'Name', '# Trades', 'Win Rate [%]', 'Equity Final [$]', 
                 'Return [%]', 'Start', 'End', 'Duration (days)', 'Buy & Hold Return [%]'
             ])
             # 将 DataFrame 写入 Excel
-            df.to_excel('parameter50_data_file.xlsx', index=False)
+            dataframe.to_excel('parameter50_data_file.xlsx', index=False)
             # 允許表格排序
             self.tableWidget_3.setSortingEnabled(True)
             self.tableWidget_3.cellClicked.connect(self.handle_cell_click_3)  # 點擊事件
@@ -1947,7 +1954,7 @@ class IterfaceWindowLogined(QWidget):#登录后画面
             # 隱藏 tab_4
             self.tabWidget.setTabVisible(self.index_of_tab_4, False)
 
-        # 0050成分股之交易成果介面
+        # 觀察清單成分股之交易成果介面
         if self.checkBox_2.isChecked():
             # 顯示 tab_5
             self.tabWidget.setTabVisible(self.index_of_tab_5, True)
@@ -1955,17 +1962,23 @@ class IterfaceWindowLogined(QWidget):#登录后画面
             myrslt = test1.test1_main(self.my_parameter_data,self.member_id, 1)
             self.tableWidget_4.setRowCount(len(self.my_parameter_data[0]))
             for i in range(len(myrslt)):
-                formatted_data = [
-                    self.my_parameter_data[0][i].replace('.TW',''),
-                    myrslt[i]['# Trades'],
-                    round(myrslt[i]['Win Rate [%]'],2),
-                    myrslt[i]['Equity Final [$]'],
-                    round(myrslt[i]['Return [%]'],2),
-                    myrslt[i]['Start'].date(),
-                    myrslt[i]['End'].date(),
-                    myrslt[i]['Duration'].days,
-                    round(myrslt[i]['Buy & Hold Return [%]'],2)
-                ]
+                if myrslt[i]['# Trades'] == 'NA':
+                    formatted_data = [
+                        self.my_parameter_data[0][i].replace('.TW',''),
+                        'NA','NA','NA','NA','NA','NA','NA','NA'
+                    ]
+                else:
+                    formatted_data = [
+                        self.my_parameter_data[0][i].replace('.TW',''),
+                        myrslt[i]['# Trades'],
+                        round(myrslt[i]['Win Rate [%]'],2),
+                        myrslt[i]['Equity Final [$]'],
+                        round(myrslt[i]['Return [%]'],2),
+                        myrslt[i]['Start'].date(),
+                        myrslt[i]['End'].date(),
+                        myrslt[i]['Duration'].days,
+                        round(myrslt[i]['Buy & Hold Return [%]'],2)
+                    ]
                 # print(formatted_data)
                 for col_index, cell_data in enumerate(formatted_data):
                     if isinstance(cell_data, (int, float)):
@@ -2095,10 +2108,15 @@ class IterfaceWindowLogined(QWidget):#登录后画面
                     })
         # 將結果轉換為 DataFrame
         slope_df = pd.DataFrame(slope_data)
-        # 過濾重複的低點，依照days_diff排序後，保留相同low_date的最高值，在依照low_date排序
-        slope_df = slope_df.sort_values('Duration_Days', ascending=False).drop_duplicates(subset=['Start_Date'], keep='first').sort_values('Start_Date')
+        if (not slope_df.empty):
+            # 過濾重複的低點，依照days_diff排序後，保留相同low_date的最高值，在依照low_date排序
+            slope_df = slope_df.sort_values('Duration_Days', ascending=False).drop_duplicates(subset=['Start_Date'], keep='first').sort_values('Start_Date')
+            table_slope_html = slope_df.to_html(index=False, border=1, justify='center', escape=False)
+
+        # 添加 HTML 样式和标题
         self.textBrowser.append(f"""<h2 style="color:red;">符合條件的大波段區間:""")
-        self.textBrowser.append(f"{slope_df.to_string(index=False)}")
+        self.textBrowser.append(f"""<div style="font-family: Arial, sans-serif; font-size: 14px;">{table_slope_html}</div>""")
+
 
         n, k, min_consolidation_days=20, 2, 20
         df = df.copy()
@@ -2139,8 +2157,13 @@ class IterfaceWindowLogined(QWidget):#登录后画面
                 consolidation_days = 0
 
         result_df = pd.DataFrame(consolidation_periods, columns=['Start Date', 'End Date', 'Duration (days)'])
-        self.textBrowser.append(f"""<h2 style="color:red;">符合條件的盤整區間:""")
-        self.textBrowser.append(f"{result_df.to_string(index=False)}")
+        if (not result_df.empty):
+            # 转换 DataFrame 为 HTML 表格，去掉索引
+            table_html = result_df.to_html(index=False, border=1, justify='center', escape=False)
+            # 添加 HTML 样式和标题
+            self.textBrowser.append(f"""<h2 style="color:red;">符合條件的盤整區間:</h2>""")
+            self.textBrowser.append(f"""<div style="font-family: Arial, sans-serif; font-size: 14px;">{table_html}</div>""")
+
 
     def handle_cell_click_2(self, row, column):
          # 尋找並移除之前的 HtmlViewer

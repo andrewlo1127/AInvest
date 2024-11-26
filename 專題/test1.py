@@ -130,6 +130,29 @@ def test1_main(data, member_id,state):
         module = load_module(file_name)
         for tick in ticker:
             df = yf.download(tick, start=start_date, end=end_date)
+            if df.empty:
+                print(f"Skipping {tick}: No data available in the specified date range.")
+                rslt = {
+                        'Start': 'NA',
+                        'End': 'NA',
+                        '# Trades': 'NA',
+                        'Win Rate [%]': 'NA',
+                        'Equity Final [$]': 'NA',
+                        'Return [%]': 'NA',
+                        'Buy & Hold Return [%]': 'NA',
+                        'Sharpe Ratio': 'NA',
+                        'Sortino Ratio': 'NA',
+                        'Calmar Ratio': 'NA',
+                        'Max. Drawdown [%]': 'NA',
+                        'Avg. Drawdown [%]': 'NA',
+                        'Max. Drawdown Duration': 'NA',
+                        'Avg. Drawdown Duration': 'NA',
+                        'Profit Factor': 'NA',
+                        'Expectancy [%]': 'NA',
+                        'SQN': 'NA'
+                       }
+                reslt.append(rslt)
+                continue
             df = module.calculate(df)
             bt = Backtest(df.dropna(), module.strategy, cash=int(money), commission=float(commission))
             try:

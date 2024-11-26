@@ -207,15 +207,17 @@ def test1_main(data, member_id,state):
         return reslt
     else:
         df = yf.download(ticker, start=start_date, end=end_date)
+        if df.empty:  # 如果下載的數據為空
+            return df, 0, 0
         # 找出檔案名稱
-        if state ==0:  # 用不到了
-            member_id = 5
-            file_name = get_file_name(connection, member_id, data[1])
-            module = load_module(file_name)
-        else:
-            file_name = get_file_name(connection, member_id, data[1])
-            module = load_module(file_name)
-        print(file_name)
+        # if state ==0:  # 用不到了
+        #     member_id = 5
+        #     file_name = get_file_name(connection, member_id, data[1])
+        #     module = load_module(file_name)
+        # else:
+        file_name = get_file_name(connection, member_id, data[1])
+        module = load_module(file_name)
+        # print(file_name)
         # 計算 KD
         df = module.calculate(df)
 
@@ -228,6 +230,9 @@ def test1_main(data, member_id,state):
         rslt = bt.run()
         print(rslt)
         print("\n", rslt["_trades"])
+
+        if rslt["_trades"].empty:  # 如果回測結果為空
+            return df, rslt, rslt['_trades']
 
         rslt["Return"] = 0
         for index, trade in rslt['_trades'].iterrows():

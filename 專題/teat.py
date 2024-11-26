@@ -663,7 +663,7 @@ class RegisterWindow(QWidget):#注册画面
                 cursor.execute(query, (username, email, hashed_password))
                 self.db_connection.commit()
                 cursor.close()
-                QMessageBox.information(self, "Registration Success", "成功注册!")
+                QMessageBox.information(self, "Registration Success", "成功註冊!")
                 self.show_interface(self.username.text())
             except mysql.connector.Error as err:
                 QMessageBox.warning(self, "Registration Failed", f"Error: {err}")
@@ -1900,7 +1900,16 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         import test1
         self.update_html()
         df, rslt, trades = test1.test1_main(self.parameter_data,self.member_id, 1)
-
+        if df.empty:
+            QMessageBox.information(None, "Warning", "此股票在此時間段內還未上市")
+            self.viewer = HtmlViewer('./HTML/white.html')
+            self.splitter.insertWidget(0, self.viewer)
+            return
+        if trades.empty:
+            QMessageBox.information(None, "Warning", "此股票在此時間段內還未交易")
+            self.viewer = HtmlViewer('./HTML/white.html')
+            self.splitter.insertWidget(0, self.viewer)
+            return
         # 0050成分股之交易成果介面
         if self.checkBox.isChecked():
             # 顯示 tab_4
@@ -2113,10 +2122,12 @@ class IterfaceWindowLogined(QWidget):#登录后画面
             slope_df = slope_df.sort_values('Duration_Days', ascending=False).drop_duplicates(subset=['Start_Date'], keep='first').sort_values('Start_Date')
             table_slope_html = slope_df.to_html(index=False, border=1, justify='center', escape=False)
 
-        # 添加 HTML 样式和标题
-        self.textBrowser.append(f"""<h2 style="color:red;">符合條件的大波段區間:""")
-        self.textBrowser.append(f"""<div style="font-family: Arial, sans-serif; font-size: 14px;">{table_slope_html}</div>""")
-
+            # 添加 HTML 样式和标题
+            self.textBrowser.append(f"""<h2 style="color:red;">符合條件的大波段區間:""")
+            self.textBrowser.append(f"""<div style="font-family: Arial, sans-serif; font-size: 14px;">{table_slope_html}</div>""")
+        else:
+            # 添加 HTML 样式和标题
+            self.textBrowser.append(f"""<h2 style="color:red;">無符合條件的大波段區間""")
 
         n, k, min_consolidation_days=20, 2, 20
         df = df.copy()
@@ -2163,7 +2174,9 @@ class IterfaceWindowLogined(QWidget):#登录后画面
             # 添加 HTML 样式和标题
             self.textBrowser.append(f"""<h2 style="color:red;">符合條件的盤整區間:</h2>""")
             self.textBrowser.append(f"""<div style="font-family: Arial, sans-serif; font-size: 14px;">{table_html}</div>""")
-
+        else:
+            # 添加 HTML 样式和标题
+            self.textBrowser.append(f"""<h2 style="color:red;">無符合條件的盤整區間""")
 
     def handle_cell_click_2(self, row, column):
          # 尋找並移除之前的 HtmlViewer

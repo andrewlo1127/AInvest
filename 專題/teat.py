@@ -17,6 +17,8 @@ import urllib.request
 from lxml import etree
 import pandas as pd
 import webbrowser
+from openpyxl import load_workbook
+from openpyxl.styles import PatternFill
 QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
 
 class FetchStock:#观察清单数据获取
@@ -1899,14 +1901,15 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         font = QFont("Arial", 7*(self.window_height/525))
         import test1
         self.update_html()
-        df, rslt, trades = test1.test1_main(self.parameter_data,self.member_id, 1)
+        df, rslt, output_path = test1.test1_main(self.parameter_data,self.member_id, 1)
         if df.empty:
             QMessageBox.information(None, "Warning", "此股票在此時間段內還未上市")
             self.viewer = HtmlViewer('./HTML/white.html')
             self.splitter.insertWidget(0, self.viewer)
             return
+        trades = rslt['_trades'][['EntryTime', 'ExitTime', 'EntryPrice', 'ExitPrice', 'Size', 'PnL', 'ReturnPct']]
         if trades.empty:
-            QMessageBox.information(None, "Warning", "此股票在此時間段內還未交易")
+            QMessageBox.information(None, "Warning", "在此時間段內未達成交易")
             self.viewer = HtmlViewer('./HTML/white.html')
             self.splitter.insertWidget(0, self.viewer)
             return
@@ -2052,13 +2055,13 @@ class IterfaceWindowLogined(QWidget):#登录后画面
             item.setTextAlignment(Qt.AlignCenter)
             self.tableWidget_2.setItem(0, col_index, item) 
         self.tableWidget_2.cellClicked.connect(self.handle_cell_click_2)
-        self.printHint(df, rslt)
+        self.printHint(df, rslt, output_path)
         # self.textBrowser.setHtml("""
         #                             <h2 style="color:red;">警告：</h2>
         #                             <h2 style="color:red;">警告：</h2>
         #                         """)
         
-    def printHint(self, df, rslt):
+    def printHint(self, df, rslt, output_path):
         time_delta = pd.Timedelta(rslt["Duration"])
         times=rslt["# Trades"]
         # print(f"在這個策略中，平均每周做{times/time_delta.days*7:.2f}次交易，每月做{times/time_delta.days*30.4:.2f}次交易，每年做{times/time_delta.days*365:.2f}次交易")
@@ -2177,6 +2180,90 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         else:
             # 添加 HTML 样式和标题
             self.textBrowser.append(f"""<h2 style="color:red;">無符合條件的盤整區間""")
+        self.highlight_intervals_with_overlap(df, slope_data, consolidation_periods, output_path)
+        self.highlight_trade_entries_and_exits(df, rslt['_trades'], output_path)
+
+
+    def highlight_trade_entries_and_exits(self, df, trades, output_path):
+        # 打開 Excel 檔案
+        workbook = load_workbook(output_path)
+        sheet = workbook["Stock Data"]
+
+        # 設定顏色填充：進場點是綠色，出場點是紅色
+        entry_fill = PatternFill(start_color="00FF00", end_color="00FF00", fill_type="solid")  # 綠色
+        exit_fill = PatternFill(start_color="FF0000", end_color="FF0000", fill_type="solid")   # 紅色
+
+        # 遍歷交易數據並標註進場和出場點
+        for _, trade in trades.iterrows():
+            entry_time = pd.to_datetime(trade['EntryTime'])
+            exit_time = pd.to_datetime(trade['ExitTime'])
+
+            # 標註進場點
+            for row in range(2, sheet.max_row + 1):
+                cell_date = pd.Timestamp(sheet[f"A{row}"].value)  # 假設 'Date' 在列 A
+                if cell_date == entry_time:
+                    sheet[f"A{row}"].fill = entry_fill  # 只填充日期格
+            # 標註出場點
+            for row in range(2, sheet.max_row + 1):
+                cell_date = pd.Timestamp(sheet[f"A{row}"].value)  # 假設 'Date' 在列 A
+                if cell_date == exit_time:
+                    sheet[f"A{row}"].fill = exit_fill  # 只填充日期格
+        # 保存 Excel 檔案
+        workbook.save(output_path)
+        return
+
+    def highlight_intervals_with_overlap(self, df, slope_data, consolidation_periods, output_path):
+        # 將 DataFrame 匯出為 Excel
+        # df.to_excel(output_path, index=False, sheet_name="Stock Data")  # 不匯出索引
+
+        # 打開匯出的 Excel 檔案
+        workbook = load_workbook(output_path)
+        sheet = workbook["Stock Data"]
+
+        # 定義顏色填充
+        slope_fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")  # 黃色
+        consolidation_fill = PatternFill(start_color="ADD8E6", end_color="ADD8E6", fill_type="solid")  # 淺藍色
+        overlap_fill = PatternFill(start_color="FF69B4", end_color="FF69B4", fill_type="solid")  # 粉紅色（重疊部分）
+
+        # 計算重疊區間
+        overlap_periods = []
+        for slope_interval in slope_data:
+            for consolidation_interval in consolidation_periods:
+                overlap_start = max(slope_interval['Start_Date'], consolidation_interval[0])  # 最大開始日期
+                overlap_end = min(slope_interval['End_Date'], consolidation_interval[1])      # 最小結束日期
+                if overlap_start <= overlap_end:  # 有交集
+                    overlap_periods.append((overlap_start, overlap_end))
+
+        # 高亮符合斜率條件的區間
+        for interval in slope_data:
+            start_date = interval['Start_Date']
+            end_date = interval['End_Date']
+            for row in range(2, sheet.max_row + 1):  # 第一行是標題，從第2行開始
+                cell_date = pd.Timestamp(sheet[f"A{row}"].value)
+                if start_date <= cell_date <= end_date:
+                    for col in range(1, sheet.max_column + 1):  # 遍歷整行
+                        sheet.cell(row=row, column=col).fill = slope_fill
+
+        # 高亮符合盤整條件的區間
+        for period in consolidation_periods:
+            start_date, end_date, _ = period
+            for row in range(2, sheet.max_row + 1):
+                cell_date = pd.Timestamp(sheet[f"A{row}"].value)
+                if start_date <= cell_date <= end_date:
+                    for col in range(1, sheet.max_column + 1):  # 遍歷整行
+                        sheet.cell(row=row, column=col).fill = consolidation_fill
+
+        # 高亮重疊區間
+        for overlap_start, overlap_end in overlap_periods:
+            for row in range(2, sheet.max_row + 1):
+                cell_date = pd.Timestamp(sheet[f"A{row}"].value)
+                if overlap_start <= cell_date <= overlap_end:
+                    for col in range(1, sheet.max_column + 1):  # 遍歷整行
+                        sheet.cell(row=row, column=col).fill = overlap_fill
+
+        # 保存 Excel 檔案
+        workbook.save(output_path)
+        return
 
     def handle_cell_click_2(self, row, column):
          # 尋找並移除之前的 HtmlViewer

@@ -220,6 +220,10 @@ def test1_main(data, member_id,state):
         # print(file_name)
         # 計算 KD
         df = module.calculate(df)
+        # print(df)
+        output_path = f"./excel/{ticker}_{start_date}-{end_date}_{file_name}.xlsx"  # 指定匯出路徑和檔名
+        # 匯出到 Excel
+        df.to_excel(output_path, index=True, sheet_name="Stock Data")
 
         # 抓取策略名稱
         name = module.name()  # 調用實例的 name() 方法
@@ -249,7 +253,8 @@ def test1_main(data, member_id,state):
         connection.close()
         print(data[0])
         # 返回只包含所需字段的 DataFrame
-        return df, rslt, rslt['_trades'][['EntryTime', 'ExitTime', 'EntryPrice', 'ExitPrice', 'Size', 'PnL', 'ReturnPct']]
+
+        return df, rslt, output_path
 
 if __name__ == '__main__':
     test1_main()

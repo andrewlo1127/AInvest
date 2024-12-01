@@ -1907,6 +1907,11 @@ class IterfaceWindowLogined(QWidget):#登录后画面
             self.viewer = HtmlViewer('./HTML/white.html')
             self.splitter.insertWidget(0, self.viewer)
             return
+        if rslt is None: # 沒模組或生成的程式碼錯誤
+            QMessageBox.information(None, "Warning", "此策略程式碼生成錯誤，請重新檢查")
+            self.viewer = HtmlViewer('./HTML/white.html')
+            self.splitter.insertWidget(0, self.viewer)
+            return
         trades = rslt['_trades'][['EntryTime', 'ExitTime', 'EntryPrice', 'ExitPrice', 'Size', 'PnL', 'ReturnPct']]
         if trades.empty:
             QMessageBox.information(None, "Warning", "在此時間段內未達成交易")
@@ -2508,6 +2513,8 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.member_window.show()
 
     def show_edit(self,row): #編輯畫面的設定
+
+
         self.overlay = QWidget(self)
         self.overlay.setStyleSheet("background-color: rgba(0, 0, 0, 150);")
         self.overlay.setGeometry(self.rect())
@@ -2587,29 +2594,37 @@ class IterfaceWindowLogined(QWidget):#登录后画面
             }}
         """)
 
-
-
-
-        #連資料庫取得原本code內容
-        edit_cursor = self.db_connection.cursor()
         m_id = self.get_member_id()
 
-        query_code = """
-        SELECT tempt_code
-        FROM code 
-        WHERE member_id = %s AND strategy = %s
-        LIMIT 1
-        """
+        # 連接資料庫並查詢對應的程式碼
+        conn = mysql.connector.connect(
+            host='3.106.70.39',
+            user='InvestUser',
+            password='Zw.urVWv*gD@J5rT',
+            database='aiinvest'
+        )
+        try:
+            cursor = conn.cursor()
+            query = """
+            SELECT tempt_code
+            FROM code
+            WHERE member_id = %s AND strategy = %s
+            LIMIT 1
+            """
+            cursor.execute(query, (m_id, strategy_name))
+            result = cursor.fetchone()
+            code = result[0] if result else ""
+        finally:
+            # 確保游標與連線正確關閉
+            cursor.close()
+            conn.close()
 
-        edit_cursor.execute(query_code,(m_id, strategy_name))
-        result = edit_cursor.fetchone()
-        code = result[0]
-        edit_cursor.close()
-
-        # 为弹窗中的输入框赋值
+        # 為彈窗中的輸入框賦值
         self.edit_window.st_name.setPlainText(strategy_name)
         self.edit_window.st_description.setPlainText(description)
         self.edit_window.st_code.setPlainText(code)
+
+        # 添加淡入效果
         self.opacity_effect = QGraphicsOpacityEffect(self.edit_window)
         self.edit_window.setGraphicsEffect(self.opacity_effect)
 
@@ -2619,6 +2634,7 @@ class IterfaceWindowLogined(QWidget):#登录后画面
         self.fade_in_animation.setEndValue(1)
         self.fade_in_animation.start()
 
+        # 顯示編輯彈窗
         self.edit_window.show()
 
     def show_increase(self):#新增的設定

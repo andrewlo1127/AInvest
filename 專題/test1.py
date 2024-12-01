@@ -110,7 +110,10 @@ def load_module(file_name):
         print(f"已刪除 {file_name} 模塊")
 
     # 動態導入指定的測試文件
-    test_module = importlib.import_module(file_name)
+    try:
+        test_module = importlib.import_module(file_name)
+    except ModuleNotFoundError:
+        return None
     importlib.reload(test_module)
 
     return test_module
@@ -180,6 +183,8 @@ def test1_main(data, member_id,state):
         # else:
         file_name = get_file_name(connection, member_id, data[1])
         module = load_module(file_name)
+        if module is None:
+            return df, None, None
         # print(file_name)
         # 計算 KD
         df = module.calculate(df)
@@ -192,9 +197,12 @@ def test1_main(data, member_id,state):
         name = module.name()  # 調用實例的 name() 方法
         print("name:", name)
 
-        # 運行回測
-        bt = Backtest(df.dropna(), module.strategy, cash=int(money), commission=float(commission))
-        rslt = bt.run()
+        try:
+            # 運行回測
+            bt = Backtest(df.dropna(), module.strategy, cash=int(money), commission=float(commission))
+            rslt = bt.run()
+        except Exception as e:
+            return df, None, None
         print(rslt)
         print("\n", rslt["_trades"])
 

@@ -9,6 +9,7 @@ from PyQt5.QtCore import QUrl
 import sys
 import os
 import py_compile
+import numpy as np
 
 class HtmlViewer(QMainWindow):
     def __init__(self, file):
@@ -35,23 +36,28 @@ def find_code_id(name, rslt, connection):
 # 將結果寫入資料庫
 def insert_rslt_to_db(name, rslt, code_id, ticker, connection, member_id):
     with connection.cursor() as cursor:
+        # 確保數據不為 NaN 或 NULL
+        sucess_p = rslt.get('Win Rate [%]', 0)  # 預設為 0，如果不存在則使用 0
+        if sucess_p is None or (isinstance(sucess_p, float) and np.isnan(sucess_p)):
+            sucess_p = 0  # 預設值
+        
         result_sql = """
         INSERT INTO test_head (code_id, member_id, target_name, times, sucess_p, acc_profit, acc_profit_margin, enter_time, exit_time, continue_time, buy_and_hold_return, html)
-        VALUES (%s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         cursor.execute(result_sql, (
             code_id,
             member_id,
             ticker.replace('.TW', ''),
-            rslt['# Trades'],
-            rslt['Win Rate [%]'],
-            rslt['Return'],
-            rslt['Return [%]'],
-            rslt['Start'],
-            rslt['End'],
-            rslt['Duration'],
-            rslt['Buy & Hold Return [%]'],
-            name+'.html'
+            rslt.get('# Trades', 0),
+            sucess_p,  # 修正過的值
+            rslt.get('Return', 0),
+            rslt.get('Return [%]', 0),
+            rslt.get('Start'),
+            rslt.get('End'),
+            rslt.get('Duration'),
+            rslt.get('Buy & Hold Return [%]', 0),
+            name + '.html'
         ))
         connection.commit()
 
@@ -155,50 +161,7 @@ def test1_main(data, member_id,state):
                 continue
             df = module.calculate(df)
             bt = Backtest(df.dropna(), module.strategy, cash=int(money), commission=float(commission))
-            try:
-                rslt = bt.run()
-            except ValueError:
-                rslt = {
-                        'Start': 'NA',
-                        'End': 'NA',
-                        '# Trades': 'NA',
-                        'Win Rate [%]': 'NA',
-                        'Equity Final [$]': 'NA',
-                        'Return [%]': 'NA',
-                        'Buy & Hold Return [%]': 'NA',
-                        'Sharpe Ratio': 'NA',
-                        'Sortino Ratio': 'NA',
-                        'Calmar Ratio': 'NA',
-                        'Max. Drawdown [%]': 'NA',
-                        'Avg. Drawdown [%]': 'NA',
-                        'Max. Drawdown Duration': 'NA',
-                        'Avg. Drawdown Duration': 'NA',
-                        'Profit Factor': 'NA',
-                        'Expectancy [%]': 'NA',
-                        'SQN': 'NA'
-                       }
-                continue
-            except Exception:
-                rslt = {
-                        'Start': 'NA',
-                        'End': 'NA',
-                        '# Trades': 'NA',
-                        'Win Rate [%]': 'NA',
-                        'Equity Final [$]': 'NA',
-                        'Return [%]': 'NA',
-                        'Buy & Hold Return [%]': 'NA',
-                        'Sharpe Ratio': 'NA',
-                        'Sortino Ratio': 'NA',
-                        'Calmar Ratio': 'NA',
-                        'Max. Drawdown [%]': 'NA',
-                        'Avg. Drawdown [%]': 'NA',
-                        'Max. Drawdown Duration': 'NA',
-                        'Avg. Drawdown Duration': 'NA',
-                        'Profit Factor': 'NA',
-                        'Expectancy [%]': 'NA',
-                        'SQN': 'NA'
-                       }
-                continue
+            rslt = bt.run()
             print(rslt)
             tick = tick.replace('.TW', '')
             bt.plot(filename='./HTML/'+str(tick)+'.html', open_browser=False)
